@@ -653,3 +653,61 @@
   color: var(--text3);
   margin-left: 8px;
 }
+
+/* ── DAILY JOURNAL ── */
+.dj-compose    { margin-bottom: 24px; }
+.dj-textarea   { min-height: 80px; resize: none; }
+.dj-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+.dj-counter {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.15s;
+}
+.dj-counter-warn { color: var(--text2); }
+.dj-counter-full { color: #b94040; }
+
+.dj-list { display: flex; flex-direction: column; }
+.dj-entry {
+  display: grid;
+  grid-template-columns: 160px 1fr auto;
+  gap: 20px;
+  align-items: start;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.dj-entry:first-child { border-top: 1px solid var(--border); }
+.dj-entry-date {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text2);
+  padding-top: 2px;
+}
+.dj-entry-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+/* ── DOWNLOAD BAR ── */
+.cm-download-bar {
+  padding: 24px 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-top: 1px solid var(--border);
+}
+.cm-download-hint {
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+}
