@@ -1,3 +1,5 @@
+import PageHero from '../components/PageHero';
+
 export default function Liberta() {
-  return <h1>Libertà</h1>;
+  return <PageHero title="Libertà" />;
 }

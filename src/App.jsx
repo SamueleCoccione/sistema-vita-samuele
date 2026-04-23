@@ -10,6 +10,7 @@ import ProgettoDigitale from './pages/ProgettoDigitale';
 export default function App() {
   return (
     <BrowserRouter>
+      <div className="global-grain" />
       <NavBar />
       <main>
         <Routes>

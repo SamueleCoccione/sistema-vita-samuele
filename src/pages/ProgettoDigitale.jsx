@@ -1,3 +1,5 @@
+import PageHero from '../components/PageHero';
+
 export default function ProgettoDigitale() {
-  return <h1>Progetto Digitale</h1>;
+  return <PageHero title="Progetto Digitale" />;
 }

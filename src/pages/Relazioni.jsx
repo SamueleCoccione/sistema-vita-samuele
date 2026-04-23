@@ -1,3 +1,5 @@
+import PageHero from '../components/PageHero';
+
 export default function Relazioni() {
-  return <h1>Relazioni</h1>;
+  return <PageHero title="Relazioni" />;
 }
