@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "utente": {
+      "samuele": {
+        ".read":  "auth != null && auth.token.email == 'samuele.coccione@gmail.com'",
+        ".write": "auth != null && auth.token.email == 'samuele.coccione@gmail.com'"
+      }
+    }
+  }
+}
