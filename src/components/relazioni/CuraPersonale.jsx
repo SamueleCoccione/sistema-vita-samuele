@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY = 'rel_cura_personale';
 
@@ -27,12 +28,10 @@ function fmtWeek(w) {
   const f = d => d.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
   return `${f(s)} – ${f(e)}`;
 }
-function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
-
 const allDone = e => CHECKS.every(c => e[c.k]);
 
 export default function CuraPersonale() {
-  const [entries, setEntries] = useState(load);
+  const [entries, setEntries] = useFirebaseState(KEY, []);
   const cw       = weekStart();
   const existing = entries.find(e => e.week === cw) || null;
   const [form, setForm] = useState(existing || { week: cw, capelli: false, vestiti: false, igiene: false, specchio: false, nota: '' });
@@ -42,7 +41,6 @@ export default function CuraPersonale() {
       ? entries.map(e => e.week === cw ? { ...form } : e)
       : [...entries, { ...form }];
     setEntries(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
   };
 
   const streak = useMemo(() => {

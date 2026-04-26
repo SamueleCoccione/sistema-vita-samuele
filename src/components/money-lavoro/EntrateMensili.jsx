@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine,
 } from 'recharts';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY      = 'ml_entrate';
 const GOAL_KEY = 'ml_entrate_goal';
@@ -14,8 +15,7 @@ const mLabel = k => { const [y, m] = k.split('-'); return new Date(Number(y), Nu
 const todayISO = () => new Date().toISOString().split('T')[0];
 const thisMonth = () => todayISO().slice(0, 7);
 
-function load()     { try { return JSON.parse(localStorage.getItem(KEY)      || '[]'); } catch { return []; } }
-function loadGoal() { try { return JSON.parse(localStorage.getItem(GOAL_KEY) || 'null') || { val: GOAL_START, history: [] }; } catch { return { val: GOAL_START, history: [] }; } }
+const DEFAULT_GOAL = { val: GOAL_START, history: [] };
 
 function monthTotals(entries) {
   const map = {};
@@ -26,8 +26,8 @@ function monthTotals(entries) {
 const EMPTY_FORM = { date: todayISO(), cliente: '', progetto: '', importo_lordo: '', categoria: 'freelance' };
 
 export default function EntrateMensili() {
-  const [entries, setEntries] = useState(load);
-  const [goal,    setGoal]    = useState(loadGoal);
+  const [entries, setEntries] = useFirebaseState(KEY, []);
+  const [goal,    setGoal]    = useFirebaseState(GOAL_KEY, DEFAULT_GOAL);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const csvRef = useRef();
@@ -39,27 +39,19 @@ export default function EntrateMensili() {
     const entry = { id: Date.now(), ...form, importo_lordo: parseFloat(form.importo_lordo) };
     const next  = [entry, ...entries];
     setEntries(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
 
-    // Check adaptive goal for current month
     const cm  = thisMonth();
     const tot = next.filter(e => mKey(e.date) === cm).reduce((s, e) => s + e.importo_lordo, 0);
     if (tot >= goal.val && !goal.history.find(h => h.month === cm)) {
       const newVal  = Math.round(goal.val * 1.10);
-      const newGoal = { val: newVal, history: [...goal.history, { month: cm, target: goal.val, reached: tot }] };
-      setGoal(newGoal);
-      localStorage.setItem(GOAL_KEY, JSON.stringify(newGoal));
+      setGoal({ val: newVal, history: [...goal.history, { month: cm, target: goal.val, reached: tot }] });
     }
 
     setForm({ ...EMPTY_FORM });
     setShowForm(false);
   };
 
-  const remove = id => {
-    const next = entries.filter(e => e.id !== id);
-    setEntries(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  };
+  const remove = id => setEntries(entries.filter(e => e.id !== id));
 
   const importCSV = e => {
     const file = e.target.files[0];
@@ -73,9 +65,7 @@ export default function EntrateMensili() {
         if (!date || isNaN(amt) || amt <= 0) return [];
         return [{ id: Date.now() + Math.random(), date, cliente: cols[1] || '', progetto: '', importo_lordo: amt, categoria: 'altro' }];
       });
-      const next = [...imported, ...entries];
-      setEntries(next);
-      localStorage.setItem(KEY, JSON.stringify(next));
+      setEntries([...imported, ...entries]);
     };
     reader.readAsText(file);
     e.target.value = '';

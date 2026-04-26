@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useFirebaseState, removeFirebaseData } from '../../hooks/useFirebaseState';
 
 const TOKEN_KEY      = 'sv_strava_tokens';
 const ACTIVITIES_KEY = 'sv_strava_activities';
@@ -76,27 +77,12 @@ async function loadActivities(accessToken) {
 
 /* ── component ── */
 export default function StravaTracker() {
-  const [tokens, setTokens] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(TOKEN_KEY)); }
-    catch { return null; }
-  });
-  const [activities, setActivities] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(ACTIVITIES_KEY) || '[]'); }
-    catch { return []; }
-  });
+  const [tokens,     saveTokens]     = useFirebaseState(TOKEN_KEY, null);
+  const [activities, saveActivities] = useFirebaseState(ACTIVITIES_KEY, []);
   const [busy,   setBusy]   = useState(false);
   const [status, setStatus] = useState('');
   const [error,  setError]  = useState(null);
   const exchanged = useRef(false); // prevent double exchange in StrictMode
-
-  const saveTokens = (t) => {
-    setTokens(t);
-    localStorage.setItem(TOKEN_KEY, JSON.stringify(t));
-  };
-  const saveActivities = (list) => {
-    setActivities(list);
-    localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(list));
-  };
 
   /* Handle OAuth callback — detect ?code= in URL after Strava redirect */
   useEffect(() => {
@@ -175,10 +161,10 @@ export default function StravaTracker() {
   };
 
   const disconnect = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(ACTIVITIES_KEY);
-    setTokens(null);
-    setActivities([]);
+    removeFirebaseData(TOKEN_KEY);
+    removeFirebaseData(ACTIVITIES_KEY);
+    saveTokens(null);
+    saveActivities([]);
     setError(null);
   };
 

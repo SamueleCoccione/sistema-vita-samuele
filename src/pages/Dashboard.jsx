@@ -1,14 +1,20 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import './Dashboard.css';
+import { useFirebaseState } from '../hooks/useFirebaseState';
+import { migrationDone, migrateFromLocalStorage } from '../utils/migrateLocalStorage';
 
 const KEY = 'dash_daily_v2';
 
 /* ── Check definitions ─────────────────────────────────────────── */
 const CORPO_CHECKS = [
-  { k: 'rucking', label: 'Rucking fatto'                        },
-  { k: 'sonno7',  label: 'Sonno 7h+'                            },
-  { k: 'orario',  label: 'Stesso orario di ieri'                },
-  { k: 'lettura', label: 'Lettura o contenuto costruttivo'      },
+  { k: 'sveglia',   label: 'Sveglia presto'                   },
+  { k: 'sonno7',    label: 'Sonno 7h+'                        },
+  { k: 'colazione', label: 'Colazione'                        },
+  { k: 'lettura',   label: 'Lettura o contenuto costruttivo'  },
+  { k: 'rucking',   label: 'Rucking'                          },
+  { k: 'igiene',    label: 'Igiene personale'                 },
+  { k: 'vestirsi',  label: 'Vestirsi'                         },
+  { k: 'casa',      label: 'Cura della casa'                  },
 ];
 
 const MONEY_CHECKS = [
@@ -128,11 +134,33 @@ function calcSectionStreak(allEntries, checks, section) {
   return count;
 }
 
-function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
+function groupByMonth(entries) {
+  const months = {};
+  entries.forEach(e => {
+    const mk = e.date.slice(0, 7);
+    if (!months[mk]) months[mk] = [];
+    months[mk].push(e);
+  });
+  return Object.entries(months)
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([mk, es]) => [mk, es.slice().sort((a, b) => b.date.localeCompare(a.date))]);
+}
+
+function fmtMonth(mk) {
+  const [y, m] = mk.split('-');
+  const s = new Date(parseInt(y), parseInt(m) - 1, 1)
+    .toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function fmtDayLabel(dateStr) {
+  return new Date(dateStr + 'T12:00:00')
+    .toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'short' });
+}
 
 const EMPTY = {
   date:      today(),
-  corpo:     { rucking: false, sonno7: false, orario: false, lettura: false, ore: '', qualita: '' },
+  corpo:     { sveglia: false, sonno7: false, colazione: false, lettura: false, rucking: false, igiene: false, vestirsi: false, casa: false, ore: '', qualita: '' },
   money:     { outreach: false, produttivo: false, followup: false, imparato: false, no_lavori_bassi: false },
   relazioni: { gesto: false, ascolto: false, familiare: false, tribu: false },
   liberta:   { tempo_me: false, no_scroll: false, progetto: false, aria_aperta: false },
@@ -140,18 +168,42 @@ const EMPTY = {
 
 /* ── Component ──────────────────────────────────────────────────── */
 export default function Dashboard() {
-  const [allEntries, setAllEntries] = useState(load);
-  const td          = today();
-  const storedToday = allEntries.find(e => e.date === td);
-  const [entry, setEntry] = useState(storedToday ? { ...EMPTY, ...storedToday } : { ...EMPTY });
+  const [showMigration, setShowMigration] = useState(!migrationDone());
+  const [migrating,     setMigrating]     = useState(false);
+  const [migrLog,       setMigrLog]       = useState('');
+
+  const runMigration = async () => {
+    setMigrating(true);
+    setMigrLog('Migrazione in corso…');
+    try {
+      const res = await migrateFromLocalStorage((key, done, total) =>
+        setMigrLog(`${done}/${total} — ${key}`)
+      );
+      setMigrLog(`✓ Migrati ${res.migrated} valori da localStorage a Firebase`);
+      setTimeout(() => setShowMigration(false), 2500);
+    } catch (err) {
+      setMigrLog(`Errore: ${err.message}`);
+      setMigrating(false);
+    }
+  };
+
+  const [allEntries, setAllEntries, allLoaded] = useFirebaseState(KEY, []);
+  const td = today();
+  const [entry, setEntry] = useState({ ...EMPTY });
+
+  useEffect(() => {
+    if (!allLoaded) return;
+    const storedToday = allEntries.find(e => e.date === td);
+    if (storedToday) setEntry({ ...EMPTY, ...storedToday });
+  }, [allLoaded]);
 
   const persist = (next) => {
     setEntry(next);
-    const updated = storedToday
+    const exists = allEntries.find(e => e.date === td);
+    const updated = exists
       ? allEntries.map(e => e.date === td ? next : e)
       : [...allEntries, next];
     setAllEntries(updated);
-    localStorage.setItem(KEY, JSON.stringify(updated));
   };
 
   const toggle = (section, key) =>
@@ -183,6 +235,32 @@ export default function Dashboard() {
 
   return (
     <div className="db-page">
+
+      {/* ── MIGRATION BANNER (one-time) */}
+      {showMigration && (
+        <div style={{
+          background: 'var(--surface)', border: '1px solid var(--border)',
+          padding: '12px 16px', marginBottom: 20,
+          display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+        }}>
+          <span style={{ fontSize: 12, color: 'var(--text2)', flex: 1 }}>
+            {migrLog || 'Dati esistenti in localStorage trovati — migra su Firebase per sincronizzarli su tutti i dispositivi.'}
+          </span>
+          {!migrating && !migrLog.startsWith('✓') && (
+            <button className="cm-btn" style={{ fontSize: 12 }} onClick={runMigration}>
+              Migra dati da localStorage
+            </button>
+          )}
+          {!migrating && (
+            <button className="cm-btn cm-btn-ghost" style={{ fontSize: 11 }} onClick={() => {
+              localStorage.setItem('sv_migrated_v1', '1');
+              setShowMigration(false);
+            }}>
+              Salta
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ── HEADER */}
       <div className="db-header">
@@ -217,40 +295,43 @@ export default function Dashboard() {
         title="Corpo & Mente"
         done={corpoDone}
         total={CORPO_CHECKS.length}
-        status={sectionStatus(corpoDone, 4, 4, 2)}
+        status={sectionStatus(corpoDone, 8, 7, 4)}
       >
-        {CORPO_CHECKS.map(c => (
-          <Check
-            key={c.k}
-            label={c.label}
-            checked={!!entry.corpo?.[c.k]}
-            onClick={() => toggle('corpo', c.k)}
-            badge={c.k === 'rucking' && ruckingStreak > 0 ? `${ruckingStreak}g` : null}
-          />
-        ))}
-        <div className="db-sleep-row">
-          <span className="db-sleep-lbl">Sonno</span>
-          <input
-            type="number"
-            className="db-sleep-input"
-            value={entry.corpo?.ore ?? ''}
-            onChange={e => setSleep('ore', e.target.value)}
-            placeholder="h"
-            min="0"
-            max="14"
-            step="0.5"
-          />
-          <span className="db-sleep-unit">ore</span>
-          {['fresco', 'normale', 'stanco'].map(q => (
-            <button
-              key={q}
-              className={`db-qual-btn${entry.corpo?.qualita === q ? ' db-qual-' + q : ''}`}
-              onClick={() => setSleep('qualita', entry.corpo?.qualita === q ? '' : q)}
-            >
-              {q}
-            </button>
-          ))}
-        </div>
+        {CORPO_CHECKS.flatMap(c => {
+          const check = (
+            <Check
+              key={c.k}
+              label={c.label}
+              checked={!!entry.corpo?.[c.k]}
+              onClick={() => toggle('corpo', c.k)}
+              badge={c.k === 'rucking' && ruckingStreak > 0 ? `${ruckingStreak}g` : null}
+            />
+          );
+          if (c.k !== 'sonno7') return [check];
+          return [
+            check,
+            <div key="sleep-detail" className="db-sleep-row">
+              <input
+                type="number"
+                className="db-sleep-input"
+                value={entry.corpo?.ore ?? ''}
+                onChange={e => setSleep('ore', e.target.value)}
+                placeholder="h"
+                min="0"
+                max="14"
+                step="0.5"
+              />
+              <span className="db-sleep-unit">ore</span>
+              {['fresco', 'normale', 'stanco'].map(q => (
+                <button
+                  key={q}
+                  className={`db-qual-btn${entry.corpo?.qualita === q ? ' db-qual-' + q : ''}`}
+                  onClick={() => setSleep('qualita', entry.corpo?.qualita === q ? '' : q)}
+                >{q}</button>
+              ))}
+            </div>,
+          ];
+        })}
       </Section>
 
       {/* ── SEZIONE 2 — MONEY & LAVORO */}
@@ -310,6 +391,150 @@ export default function Dashboard() {
         ))}
       </Section>
 
+      <StatsPanel entries={allWithToday} />
+      <HistoryPanel entries={allWithToday} />
+
+    </div>
+  );
+}
+
+/* ── StatsPanel ─────────────────────────────────────────────────── */
+function StatsPanel({ entries }) {
+  if (entries.length === 0) return null;
+  const avg = entries.reduce((s, e) => s + globalScore(e), 0) / entries.length;
+  const areaAvg = (checks, section) =>
+    Math.round(entries.reduce((s, e) => s + sectionDone(e[section], checks) / checks.length, 0) / entries.length * 100);
+  const avgColor = avg >= 8 ? 'green' : avg >= 5 ? 'yellow' : 'red';
+  const areas = [
+    { label: 'Corpo & Mente',   pct: areaAvg(CORPO_CHECKS,     'corpo'),     color: 'var(--chart-blue)'   },
+    { label: 'Money & Lavoro',  pct: areaAvg(MONEY_CHECKS,     'money'),     color: 'var(--score-yellow)' },
+    { label: 'Relazioni',       pct: areaAvg(RELAZIONI_CHECKS, 'relazioni'), color: '#c8a0e0'              },
+    { label: 'Libertà',         pct: areaAvg(LIBERTA_CHECKS,   'liberta'),   color: 'var(--chart-orange)' },
+  ];
+  return (
+    <div className="db-stats-panel">
+      <div className="db-stats-head">
+        <span className="db-stats-title">Statistiche</span>
+        <span className="db-stats-meta">{entries.length} {entries.length === 1 ? 'giornata' : 'giornate'} tracciate</span>
+      </div>
+      <div className="db-stats-avg-row">
+        <span className={`db-stats-avg-num db-stats-avg-${avgColor}`}>{avg.toFixed(1)}</span>
+        <span className="db-stats-avg-den">/10</span>
+        <span className="db-stats-avg-lbl">media globale</span>
+      </div>
+      <div className="db-stats-areas">
+        {areas.map(a => (
+          <div key={a.label} className="db-stats-area">
+            <span className="db-stats-area-lbl">{a.label}</span>
+            <div className="db-stats-area-bar">
+              <div className="db-stats-area-fill" style={{ width: `${a.pct}%`, background: a.color }} />
+            </div>
+            <span className="db-stats-area-pct">{a.pct}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── HistoryPanel ────────────────────────────────────────────────── */
+function HistoryPanel({ entries }) {
+  const months     = groupByMonth(entries);
+  const currentMk  = new Date().toISOString().slice(0, 7);
+  const td         = new Date().toISOString().split('T')[0];
+  const [openMonths, setOpenMonths] = useState(() => new Set([currentMk]));
+  const [openDays,   setOpenDays]   = useState(new Set());
+
+  if (entries.length === 0) return null;
+
+  const toggleMonth = mk => setOpenMonths(s => { const n = new Set(s); n.has(mk) ? n.delete(mk) : n.add(mk); return n; });
+  const toggleDay   = dk => setOpenDays(s => { const n = new Set(s); n.has(dk) ? n.delete(dk) : n.add(dk); return n; });
+
+  return (
+    <div className="db-history">
+      <div className="db-history-hd">Storico</div>
+      <div className="db-hist-months">
+        {months.map(([mk, es]) => {
+          const isOpen    = openMonths.has(mk);
+          const monthAvg  = es.reduce((s, e) => s + globalScore(e), 0) / es.length;
+          const isCurrent = mk === currentMk;
+          return (
+            <div key={mk} className="db-hist-month">
+              <button className={`db-hist-month-head${isOpen ? ' open' : ''}`} onClick={() => toggleMonth(mk)}>
+                <span className="db-hist-month-lbl">{fmtMonth(mk)}</span>
+                {isCurrent && <span className="db-hist-cur">in corso</span>}
+                <span className="db-hist-month-cnt">{es.length}g</span>
+                <span className="db-hist-month-avg">{monthAvg.toFixed(1)}/10</span>
+                <span className="db-hist-chev">{isOpen ? '▲' : '▼'}</span>
+              </button>
+              {isOpen && (
+                <div className="db-hist-days">
+                  {es.map(e => {
+                    const score      = globalScore(e);
+                    const scoreColor = score >= 8 ? 'green' : score >= 5 ? 'yellow' : 'red';
+                    const isToday    = e.date === td;
+                    const isDayOpen  = openDays.has(e.date);
+                    const areaFracs  = [
+                      { pct: sectionDone(e.corpo,     CORPO_CHECKS)     / CORPO_CHECKS.length,     color: 'var(--chart-blue)'   },
+                      { pct: sectionDone(e.money,     MONEY_CHECKS)     / MONEY_CHECKS.length,     color: 'var(--score-yellow)' },
+                      { pct: sectionDone(e.relazioni, RELAZIONI_CHECKS) / RELAZIONI_CHECKS.length, color: '#c8a0e0'              },
+                      { pct: sectionDone(e.liberta,   LIBERTA_CHECKS)   / LIBERTA_CHECKS.length,   color: 'var(--chart-orange)' },
+                    ];
+                    return (
+                      <div key={e.date} className={`db-hist-day${isDayOpen ? ' open' : ''}`}>
+                        <div className="db-hist-day-head" onClick={() => toggleDay(e.date)}>
+                          <span className="db-hist-day-lbl">
+                            {isToday ? 'Oggi' : fmtDayLabel(e.date)}
+                          </span>
+                          <span className={`db-hist-score db-hist-score-${scoreColor}`}>{score.toFixed(1)}</span>
+                          <div className="db-hist-bars">
+                            {areaFracs.map((a, i) => (
+                              <div key={i} className="db-hist-bar-wrap">
+                                <div className="db-hist-bar-fill" style={{ height: `${a.pct * 100}%`, background: a.color }} />
+                              </div>
+                            ))}
+                          </div>
+                          <span className="db-hist-chev">{isDayOpen ? '▲' : '▼'}</span>
+                        </div>
+                        {isDayOpen && (
+                          <div className="db-hist-day-body">
+                            {[
+                              { section: 'corpo',     checks: CORPO_CHECKS,     label: 'Corpo & Mente'  },
+                              { section: 'money',     checks: MONEY_CHECKS,     label: 'Money & Lavoro' },
+                              { section: 'relazioni', checks: RELAZIONI_CHECKS, label: 'Relazioni'      },
+                              { section: 'liberta',   checks: LIBERTA_CHECKS,   label: 'Libertà'        },
+                            ].map(({ section, checks, label }) => (
+                              <div key={section} className="db-hist-area-block">
+                                <div className="db-hist-area-title">{label}</div>
+                                {checks.map(c => (
+                                  <div key={c.k} className={`db-hist-chk${e[section]?.[c.k] ? ' on' : ''}`}>
+                                    <span className="db-hist-chk-dot" />
+                                    <span>{c.label}</span>
+                                  </div>
+                                ))}
+                                {section === 'corpo' && (e.corpo?.ore || e.corpo?.qualita) && (
+                                  <div className="db-hist-sleep">
+                                    {e.corpo.ore && <span>{e.corpo.ore}h sonno</span>}
+                                    {e.corpo.qualita && (
+                                      <span className={`db-hist-qual db-hist-qual-${e.corpo.qualita}`}>
+                                        {e.corpo.qualita}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -336,7 +561,12 @@ function Section({ title, done, total, status, streak, streakLabel, alert, child
 function Check({ label, checked, onClick, badge }) {
   return (
     <div className={`db-check${checked ? ' on' : ''}`} onClick={onClick}>
-      <span className="db-check-box">{checked ? '✓' : '○'}</span>
+      <span className="db-check-box">
+        <span className="db-check-circle" />
+        <svg className="db-check-mark" width="12" height="9" viewBox="0 0 12 9" fill="none">
+          <path d="M1 4L4.5 7.5L11 1" stroke="#1a1a1a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </span>
       <span className="db-check-lbl">{label}</span>
       {badge && <span className="db-check-badge">{badge}</span>}
     </div>

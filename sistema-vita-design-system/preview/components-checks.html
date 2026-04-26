@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f5f3ef; font-family:system-ui,-apple-system,sans-serif; padding:20px; }
+.meta { font-size:9px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:#b8b4ac; margin-bottom:12px; }
+.sep { height:1px; background:#d4d0c8; margin:18px 0; }
+
+/* ── Check row ── */
+.check-list { max-width:400px; }
+
+.check {
+  display:flex; align-items:center; gap:14px;
+  padding:12px 8px; cursor:pointer;
+  border-bottom:1px solid #d4d0c8;
+  user-select:none;
+  transition:background 0.15s;
+  border-radius:0;
+}
+.check:last-child { border-bottom:none; }
+.check:hover { background:rgba(0,0,0,0.025); }
+.check.on { background:rgba(200,245,100,0.12); }
+.check:active { background:rgba(200,245,100,0.22); }
+
+/* The box */
+.check-box {
+  width:22px; height:22px; flex-shrink:0;
+  border-radius:6px;
+  border:1.5px solid #d4d0c8;
+  background:transparent;
+  display:flex; align-items:center; justify-content:center;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.12s cubic-bezier(0.34,1.56,0.64,1),
+    box-shadow 0.18s ease;
+  position:relative; overflow:hidden;
+}
+.check:hover .check-box {
+  border-color:#b0ac9f;
+  box-shadow:0 0 0 3px rgba(200,245,100,0.15);
+}
+.check.on .check-box {
+  background:#c8f564;
+  border-color:#c8f564;
+  box-shadow:0 0 0 3px rgba(200,245,100,0.25);
+}
+.check.on:active .check-box,
+.check-box.pop {
+  transform:scale(0.85);
+}
+
+/* Checkmark SVG */
+.check-mark {
+  opacity:0; transform:scale(0.3) rotate(-10deg);
+  transition:opacity 0.15s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  position:absolute;
+}
+.check.on .check-mark {
+  opacity:1; transform:scale(1) rotate(0deg);
+}
+
+/* Circle outline when unchecked */
+.check-circle {
+  width:8px; height:8px; border-radius:50%;
+  border:1.5px solid #d4d0c8;
+  transition:opacity 0.12s; opacity:1;
+}
+.check.on .check-circle { opacity:0; }
+
+/* Label */
+.check-lbl {
+  font-size:13px; flex:1;
+  color:#6e6a62;
+  transition:color 0.15s, font-weight 0.1s;
+}
+.check.on .check-lbl { color:#1a1a1a; font-weight:500; }
+
+/* Badge */
+.check-badge {
+  font-size:9px; font-weight:800; letter-spacing:0.08em;
+  background:#c8f564; color:#1a1a1a;
+  padding:2px 7px; border-radius:20px; flex-shrink:0;
+}
+
+/* Strikethrough on done */
+.check.on .check-lbl-strike { text-decoration:line-through; text-decoration-color:#b0ac9f; color:#b8b4ac; }
+
+/* ── Progress bar ── */
+.prog-wrap { max-width:300px; margin-top:4px; }
+.prog-label-row { display:flex; justify-content:space-between; margin-bottom:6px; }
+.prog-label { font-size:10px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:#6e6a62; }
+.prog-val   { font-size:10px; color:#6e6a62; }
+.prog-track {
+  height:4px; background:#d4d0c8; border-radius:2px;
+  position:relative; overflow:hidden; margin-bottom:14px;
+}
+.prog-fill {
+  position:absolute; left:0; top:0; bottom:0;
+  background:#c8f564; border-radius:2px;
+  transition:width 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ── Goal rows (weekly) ── */
+.goal-list { max-width:400px; }
+.goal-row {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 0; border-bottom:1px solid #d4d0c8; cursor:pointer;
+  transition:background 0.12s; border-radius:0; user-select:none;
+}
+.goal-row:first-child { border-top:1px solid #d4d0c8; }
+.goal-row:hover { background:rgba(0,0,0,0.02); }
+
+.goal-btn {
+  width:20px; height:20px; border-radius:50%;
+  border:1.5px solid #d4d0c8; background:transparent;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:800; color:#1a1a1a; flex-shrink:0;
+  font-family:inherit; padding:0;
+  transition:
+    background 0.18s, border-color 0.18s,
+    transform 0.15s cubic-bezier(0.34,1.56,0.64,1),
+    box-shadow 0.18s;
+}
+.goal-row:hover .goal-btn { border-color:#b0ac9f; }
+.goal-row.done .goal-btn {
+  background:#c8f564; border-color:#c8f564;
+  box-shadow:0 0 0 3px rgba(200,245,100,0.25);
+}
+.goal-text { font-size:14px; color:#1a1a1a; flex:1; transition:color 0.15s; }
+.goal-row.done .goal-text { color:#b8b4ac; text-decoration:line-through; text-decoration-color:#b0ac9f; }
+</style>
+</head><body>
+
+<div class="meta">Daily Check rows — satisfying click</div>
+<div class="check-list" id="daily-checks"></div>
+
+<div class="sep"></div>
+<div class="meta">Weekly Goals</div>
+<div class="goal-list" id="goal-list"></div>
+
+<div class="sep"></div>
+<div class="meta">Progress bars</div>
+<div class="prog-wrap">
+  <div class="prog-label-row">
+    <span class="prog-label">Obiettivo entrate</span>
+    <span class="prog-val">€2.400 / €4.000</span>
+  </div>
+  <div class="prog-track"><div class="prog-fill" style="width:60%"></div></div>
+  <div class="prog-label-row">
+    <span class="prog-label">Libri letti</span>
+    <span class="prog-val">8 / 24</span>
+  </div>
+  <div class="prog-track"><div class="prog-fill" style="width:33%"></div></div>
+</div>
+
+<script>
+const CHECKS = [
+  { label: 'Rucking fatto', badge: '12g' },
+  { label: 'Sonno 7h+' },
+  { label: 'Stesso orario di ieri' },
+  { label: 'Lettura o contenuto costruttivo' },
+];
+
+const GOALS = [
+  { label: 'Finire libro "Atomic Habits"', done: true },
+  { label: 'Contattare 10 nuovi prospect', done: false },
+  { label: 'Pubblicare articolo sul blog', done: false },
+];
+
+// Daily checks
+const dailyState = CHECKS.map((_, i) => i < 2);
+
+const checksEl = document.getElementById('daily-checks');
+
+function renderChecks() {
+  checksEl.innerHTML = '';
+  CHECKS.forEach((c, i) => {
+    const on = dailyState[i];
+    const row = document.createElement('div');
+    row.className = 'check' + (on ? ' on' : '');
+    row.innerHTML = `
+      <div class="check-box">
+        <div class="check-circle"></div>
+        <svg class="check-mark" width="12" height="9" viewBox="0 0 12 9" fill="none">
+          <path d="M1 4L4.5 7.5L11 1" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="check-lbl">${c.label}</span>
+      ${c.badge ? `<span class="check-badge">${c.badge}</span>` : ''}
+    `;
+    row.addEventListener('click', () => {
+      // Pop animation
+      const box = row.querySelector('.check-box');
+      box.style.transform = 'scale(0.82)';
+      setTimeout(() => { box.style.transform = ''; }, 120);
+      dailyState[i] = !dailyState[i];
+      renderChecks();
+    });
+    checksEl.appendChild(row);
+  });
+}
+renderChecks();
+
+// Weekly goals
+const goalState = GOALS.map(g => g.done);
+const goalListEl = document.getElementById('goal-list');
+
+function renderGoals() {
+  goalListEl.innerHTML = '';
+  GOALS.forEach((g, i) => {
+    const done = goalState[i];
+    const row = document.createElement('div');
+    row.className = 'goal-row' + (done ? ' done' : '');
+    row.innerHTML = `
+      <button class="goal-btn">${done ? `<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 3.5L3.8 6.5L9 1" stroke="#1a1a1a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}</button>
+      <span class="goal-text">${g.label}</span>
+    `;
+    row.addEventListener('click', () => {
+      const btn = row.querySelector('.goal-btn');
+      btn.style.transform = 'scale(0.8)';
+      setTimeout(() => { btn.style.transform = ''; }, 130);
+      goalState[i] = !goalState[i];
+      setTimeout(renderGoals, 80);
+    });
+    goalListEl.appendChild(row);
+  });
+}
+renderGoals();
+</script>
+</body></html>

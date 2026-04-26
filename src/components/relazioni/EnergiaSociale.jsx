@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY = 'rel_energia';
 
@@ -13,10 +14,8 @@ function weekStart() {
 function fmtDate(s) {
   return new Date(s + 'T12:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
 }
-function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
-
 export default function EnergiaSociale() {
-  const [entries, setEntries] = useState(load);
+  const [entries, setEntries] = useFirebaseState(KEY, []);
   const cw       = weekStart();
   const existing = entries.find(e => e.week === cw) || null;
 
@@ -28,11 +27,9 @@ export default function EnergiaSociale() {
 
   const save = () => {
     const entry = { id: existing?.id || Date.now(), week: cw, date: today(), apertura, evitato, disagio };
-    const next  = existing
+    setEntries(existing
       ? entries.map(e => e.week === cw ? entry : e)
-      : [...entries, entry];
-    setEntries(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
+      : [...entries, entry]);
   };
 
   const chartData = useMemo(() =>

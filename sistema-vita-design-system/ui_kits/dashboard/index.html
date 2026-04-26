@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema di Vita — UI Kit</title>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { color-scheme:light; }
+  body {
+    background:#f5f3ef;
+    color:#1a1a1a;
+    font-family:system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* Global grain */
+  .global-grain {
+    position:fixed; inset:0; pointer-events:none; z-index:99999;
+    mix-blend-mode:multiply; opacity:0.16;
+    background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScyMDAnIGhlaWdodD0nMjAwJz48ZmlsdGVyIGlkPSdnJz48ZmVUdXJidWxlbmNlIHR5cGU9J2ZyYWN0YWxOb2lzZScgYmFzZUZyZXF1ZW5jeT0nMC43NSAwLjgwJyBudW1PY3RhdmVzPSc0JyBzdGl0Y2hUaWxlcz0nc3RpdGNoJy8+PGZlQ29sb3JNYXRyaXggdHlwZT0nc2F0dXJhdGUnIHZhbHVlcz0nMCcvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPScyMDAnIGhlaWdodD0nMjAwJyBmaWx0ZXI9J3VybCgjZyknLz48L3N2Zz4=");
+    background-repeat:repeat; background-size:200px 200px;
+  }
+  main { padding:0; }
+  /* Coming soon screen */
+  .coming-soon {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:60vh; gap:16px;
+    font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#b8b4ac;
+  }
+  .coming-soon-dot { width:6px; height:6px; background:#d4d0c8; border-radius:50%; }
+</style>
+
+<template id="__bundler_thumbnail" data-bg-color="#f5f3ef">
+  <svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+    <!-- Navbar -->
+    <rect x="0" y="0" width="400" height="32" fill="#1a1a1a"/>
+    <rect x="12" y="11" width="40" height="10" rx="1" fill="#c8f564" opacity="0.9"/>
+    <rect x="64" y="13" width="36" height="6" rx="1" fill="#555" opacity="0.6"/>
+    <rect x="112" y="13" width="44" height="6" rx="1" fill="#555" opacity="0.6"/>
+    <!-- Header card -->
+    <rect x="16" y="44" width="368" height="72" fill="#1a1a1a"/>
+    <rect x="28" y="56" width="80" height="8" rx="1" fill="rgba(255,255,255,0.3)"/>
+    <rect x="28" y="68" width="130" height="14" rx="1" fill="rgba(255,255,255,0.9)"/>
+    <rect x="300" y="52" width="60" height="36" rx="1" fill="transparent"/>
+    <text x="322" y="82" font-family="system-ui" font-size="28" font-weight="800" fill="#c8f564">7.4</text>
+    <rect x="28" y="96" width="30" height="8" rx="1" fill="#c8f564" opacity="0.8"/>
+    <rect x="68" y="96" width="30" height="8" rx="1" fill="#c8f564" opacity="0.8"/>
+    <!-- Section card 1 -->
+    <rect x="16" y="126" width="368" height="54" fill="#f5f3ef" stroke="#d4d0c8" stroke-width="1"/>
+    <rect x="16" y="126" width="368" height="3" fill="#5aaa3a"/>
+    <rect x="28" y="136" width="60" height="6" rx="1" fill="#1a1a1a" opacity="0.7"/>
+    <rect x="28" y="150" width="16" height="16" rx="4" fill="#c8f564"/>
+    <rect x="52" y="155" width="100" height="6" rx="1" fill="#6e6a62" opacity="0.6"/>
+    <rect x="28" y="168" width="16" height="16" rx="4" fill="transparent" stroke="#d4d0c8"/>
+    <rect x="52" y="173" width="120" height="6" rx="1" fill="#b8b4ac" opacity="0.5"/>
+    <!-- Section card 2 -->
+    <rect x="16" y="188" width="368" height="54" fill="#f5f3ef" stroke="#d4d0c8" stroke-width="1"/>
+    <rect x="16" y="188" width="368" height="3" fill="#d4a820"/>
+    <rect x="28" y="198" width="70" height="6" rx="1" fill="#1a1a1a" opacity="0.7"/>
+    <rect x="28" y="212" width="16" height="16" rx="4" fill="#c8f564"/>
+    <rect x="52" y="217" width="90" height="6" rx="1" fill="#6e6a62" opacity="0.6"/>
+    <rect x="28" y="230" width="16" height="16" rx="4" fill="transparent" stroke="#d4d0c8"/>
+    <rect x="52" y="235" width="110" height="6" rx="1" fill="#b8b4ac" opacity="0.5"/>
+  </svg>
+</template>
+</head>
+<body>
+<div class="global-grain"></div>
+
+<script type="text/babel" src="NavBar.jsx"></script>
+<script type="text/babel" src="DashboardScreen.jsx"></script>
+<script type="text/babel" src="CorpoMenteScreen.jsx"></script>
+<script type="text/babel" src="MoneyLavoroScreen.jsx"></script>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const SCREENS = ['dashboard','corpo-mente','money-lavoro','relazioni','liberta','progetto-digitale'];
+
+function ComingSoon({ title }) {
+  return React.createElement('div', { className: 'coming-soon' },
+    React.createElement('div', { className: 'coming-soon-dot' }),
+    React.createElement('span', null, `${title} — in sviluppo`)
+  );
+}
+
+function App() {
+  const [screen, setScreen] = React.useState('dashboard');
+
+  const renderScreen = () => {
+    switch (screen) {
+      case 'dashboard':        return React.createElement(DashboardScreen);
+      case 'corpo-mente':      return React.createElement(CorpoMenteScreen);
+      case 'money-lavoro':     return React.createElement(MoneyLavoroScreen);
+      case 'relazioni':        return React.createElement(ComingSoon, { title: 'Relazioni' });
+      case 'liberta':          return React.createElement(ComingSoon, { title: 'Libertà' });
+      case 'progetto-digitale':return React.createElement(ComingSoon, { title: 'Progetto Digitale' });
+      default:                 return React.createElement(DashboardScreen);
+    }
+  };
+
+  return React.createElement(React.Fragment, null,
+    React.createElement(NavBar, { active: screen, onNav: setScreen }),
+    React.createElement('main', null, renderScreen())
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+</script>
+</body>
+</html>

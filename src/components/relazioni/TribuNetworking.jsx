@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY_PERSONE = 'rel_tribu_persone';
 const KEY_EVENTI  = 'rel_tribu_eventi';
@@ -13,24 +14,22 @@ const STATI = [
 function today()           { return new Date().toISOString().split('T')[0]; }
 function daysBetween(a, b) { return Math.floor((new Date(b) - new Date(a)) / 86400000); }
 function fmtDate(s)        { return new Date(s + 'T12:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: '2-digit' }); }
-function loadP()           { try { return JSON.parse(localStorage.getItem(KEY_PERSONE) || '[]'); } catch { return []; } }
-function loadE()           { try { return JSON.parse(localStorage.getItem(KEY_EVENTI)  || '[]'); } catch { return []; } }
 const statoInfo = id => STATI.find(s => s.id === id) || STATI[0];
 
 const EMPTY_P = { nome: '', contesto: '', cosa_fa: '', sinergia: '', stato: 'conosciuto', ultimo_contatto: today(), note: '' };
 const EMPTY_E = { nome: '', data: today(), obiettivo: '', incontrati: '', followup: false, note: '' };
 
 export default function TribuNetworking() {
-  const [persone, setPersone] = useState(loadP);
-  const [eventi,  setEventi]  = useState(loadE);
+  const [persone, setPersone] = useFirebaseState(KEY_PERSONE, []);
+  const [eventi,  setEventi]  = useFirebaseState(KEY_EVENTI, []);
   const [view,    setView]    = useState('persone');
   const [formP,   setFormP]   = useState(null);
   const [editPId, setEditPId] = useState(null);
   const [formE,   setFormE]   = useState(null);
   const [editEId, setEditEId] = useState(null);
 
-  const savePersone = next => { setPersone(next); localStorage.setItem(KEY_PERSONE, JSON.stringify(next)); };
-  const saveEventi  = next => { setEventi(next);  localStorage.setItem(KEY_EVENTI,  JSON.stringify(next)); };
+  const savePersone = next => setPersone(next);
+  const saveEventi  = next => setEventi(next);
 
   const upsertP = () => {
     if (!formP?.nome.trim()) return;

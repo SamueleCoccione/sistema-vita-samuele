@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f5f3ef; font-family:system-ui,-apple-system,sans-serif; padding:20px; }
+.row { display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap; margin-bottom:16px; }
+.meta { font-size:9px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:#b8b4ac; margin-bottom:8px; }
+.sep { height:1px; background:#d4d0c8; margin:12px 0; }
+
+.btn {
+  background:#c8f564; color:#1a1a1a;
+  border:none; padding:9px 16px;
+  font-size:10px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase;
+  cursor:pointer; font-family:inherit; white-space:nowrap; border-radius:0;
+}
+.btn-ghost {
+  background:transparent; color:#6e6a62;
+  border:1px solid #d4d0c8; padding:9px 16px;
+  font-size:10px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase;
+  cursor:pointer; font-family:inherit; border-radius:0;
+}
+.btn-ghost-dark {
+  background:transparent; color:#b0ac9f;
+  border:1px solid #b0ac9f; padding:9px 16px;
+  font-size:10px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase;
+  cursor:pointer; font-family:inherit; border-radius:0;
+}
+.btn-disabled { opacity:0.35; cursor:not-allowed; }
+.icon-btn { background:none; border:none; cursor:pointer; color:#b8b4ac; font-size:16px; padding:4px; }
+
+.tab { background:transparent; color:#6e6a62; border:1px solid #d4d0c8; padding:5px 12px; font-size:10px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; cursor:pointer; font-family:inherit; border-radius:0; }
+.tab-active { background:#c8f564; color:#1a1a1a; border-color:#c8f564; }
+</style>
+</head><body>
+
+<div class="meta">Primary</div>
+<div class="row">
+  <button class="btn">Salva</button>
+  <button class="btn">↓ Esporta dati tab</button>
+  <button class="btn btn-disabled" disabled>Disabilitato</button>
+</div>
+
+<div class="sep"></div>
+<div class="meta">Ghost</div>
+<div class="row">
+  <button class="btn-ghost">Aggiorna valori</button>
+  <button class="btn-ghost">Annulla</button>
+  <button class="btn-ghost-dark">Connetti Strava</button>
+</div>
+
+<div class="sep"></div>
+<div class="meta">Filter Tabs</div>
+<div class="row">
+  <div style="display:flex;gap:1px;">
+    <button class="tab tab-active">Tutti</button>
+    <button class="tab">In lettura</button>
+    <button class="tab">Finiti</button>
+    <button class="tab">Da leggere</button>
+  </div>
+</div>
+
+<div class="sep"></div>
+<div class="meta">Quality Buttons</div>
+<div class="row">
+  <button style="font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:lowercase;padding:4px 12px;border:1px solid #d4d0c8;background:transparent;color:#6e6a62;font-family:inherit;border-radius:0;">normale</button>
+  <button style="font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:lowercase;padding:4px 12px;border:1px solid #5aaa3a;background:rgba(200,245,100,0.25);color:#3a7a1a;font-family:inherit;border-radius:0;">fresco</button>
+  <button style="font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:lowercase;padding:4px 12px;border:1px solid #c4981a;background:rgba(212,168,32,0.15);color:#7a5800;font-family:inherit;border-radius:0;">stanco</button>
+</div>
+
+</body></html>

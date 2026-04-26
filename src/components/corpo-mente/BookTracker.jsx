@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY      = 'sv_books_v2';
 const GOAL_KEY = 'sv_book_goal';
@@ -23,8 +24,15 @@ const EMPTY = {
   cover: null, status: 'to-read', rating: 0,
   totalPages: '', currentPages: '0',
   startDate: '', endDate: '',
-  notes: '', learnings: '', application: '',
+  quote: '', notes: '', learnings: '', application: '',
 };
+
+const TEXT_FIELDS = [
+  ['quote',       'Citazione significativa'],
+  ['notes',       'Note libere'],
+  ['learnings',   'Insegnamenti chiave'],
+  ['application', 'Come lo applico alla vita'],
+];
 
 function getMondayStr() {
   const d = new Date();
@@ -35,7 +43,37 @@ function getMondayStr() {
 }
 
 function fmtDate(s) {
-  return new Date(s + 'T12:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: '2-digit' });
+  return new Date(s + 'T12:00:00').toLocaleDateString('it-IT', {
+    day: '2-digit', month: 'short', year: '2-digit',
+  });
+}
+
+function matchesSearch(book, query) {
+  if (!query.trim()) return true;
+  const q = query.toLowerCase();
+  return (
+    book.title.toLowerCase().includes(q) ||
+    (book.author  || '').toLowerCase().includes(q) ||
+    (book.quote   || '').toLowerCase().includes(q) ||
+    (book.notes   || '').toLowerCase().includes(q) ||
+    (book.learnings   || '').toLowerCase().includes(q) ||
+    (book.application || '').toLowerCase().includes(q)
+  );
+}
+
+function getSnippets(book, query) {
+  if (!query.trim()) return [];
+  const q = query.toLowerCase();
+  const results = [];
+  for (const [field, label] of TEXT_FIELDS) {
+    const val = (book[field] || '');
+    if (!val.toLowerCase().includes(q)) continue;
+    const idx   = val.toLowerCase().indexOf(q);
+    const start = Math.max(0, idx - 40);
+    const end   = Math.min(val.length, idx + q.length + 40);
+    results.push({ label, text: val.slice(start, end) });
+  }
+  return results;
 }
 
 function ProgressBar({ current, total }) {
@@ -63,15 +101,15 @@ function StarRow({ value, onChange }) {
   );
 }
 
-function BookItem({ book, expanded, onToggle, onPatch, onRemove }) {
+function BookItem({ book, expanded, onToggle, onPatch, onRemove, search }) {
+  const snippets = getSnippets(book, search || '');
   return (
     <div className="cm-book-row">
-      {/* ── compact row ── */}
+      {/* Compact row */}
       <div className="cm-book-compact" onClick={onToggle}>
         {book.cover
           ? <img src={book.cover} alt={book.title} className="cm-book-thumb" />
           : <div className="cm-book-thumb-ph" />}
-
         <div className="cm-book-info">
           <div className="cm-book-title">{book.title}</div>
           <div className="cm-book-meta">
@@ -80,7 +118,6 @@ function BookItem({ book, expanded, onToggle, onPatch, onRemove }) {
           </div>
           <ProgressBar current={book.currentPages || 0} total={book.totalPages} />
         </div>
-
         <div className="cm-book-aside">
           <span className={`cm-status-badge cm-status-${book.status}`}>
             {STATUS_MAP[book.status]}
@@ -88,21 +125,33 @@ function BookItem({ book, expanded, onToggle, onPatch, onRemove }) {
           {book.rating > 0 && (
             <div className="cm-stars">
               {[1,2,3,4,5].map(n => (
-                <span key={n} className={`cm-star${n <= book.rating ? ' active' : ''}`} style={{ cursor: 'default' }}>★</span>
+                <span key={n} className={`cm-star${n <= book.rating ? ' active' : ''}`}
+                  style={{ cursor: 'default' }}>★</span>
               ))}
             </div>
           )}
           <span className="cm-book-chevron">{expanded ? '▲' : '▼'}</span>
         </div>
-
         <button className="cm-icon-btn" style={{ alignSelf: 'flex-start', marginTop: 2 }}
           onClick={e => { e.stopPropagation(); onRemove(); }}>×</button>
       </div>
 
-      {/* ── expanded panel ── */}
+      {/* Search snippets */}
+      {snippets.length > 0 && !expanded && (
+        <div className="cm-book-snippets">
+          {snippets.map((s, i) => (
+            <div key={i} className="cm-book-snippet">
+              <span className="cm-book-snippet-label">{s.label}</span>
+              …{s.text}…
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Expanded panel */}
       {expanded && (
         <div className="cm-book-expanded" onClick={e => e.stopPropagation()}>
-          {/* Meta row */}
+          {/* Meta */}
           <div className="cm-book-exp-meta">
             {book.startDate && (
               <div className="cm-book-exp-item">
@@ -152,17 +201,11 @@ function BookItem({ book, expanded, onToggle, onPatch, onRemove }) {
             </div>
           </div>
 
-          {/* Text fields — edit inline */}
-          {[
-            ['notes',       'Note libere'],
-            ['learnings',   'Insegnamenti chiave'],
-            ['application', 'Come lo applico alla vita'],
-          ].map(([field, label]) => (
+          {/* Text fields */}
+          {TEXT_FIELDS.map(([field, label]) => (
             <div key={field} className="cm-form-group" style={{ marginBottom: 14 }}>
               <label className="cm-label">{label}</label>
-              <textarea
-                className="cm-input cm-textarea"
-                rows={3}
+              <textarea className="cm-input cm-textarea" rows={field === 'quote' ? 2 : 3}
                 value={book[field] || ''}
                 onChange={e => onPatch({ [field]: e.target.value })}
                 placeholder={`${label}...`}
@@ -176,22 +219,19 @@ function BookItem({ book, expanded, onToggle, onPatch, onRemove }) {
 }
 
 export default function BookTracker() {
-  const [books, setBooks] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
-    catch { return []; }
-  });
-  const [goal, setGoal] = useState(() => parseInt(localStorage.getItem(GOAL_KEY) || '1', 10));
-  const [filter, setFilter] = useState('all');
+  const [books, setBooks] = useFirebaseState(KEY, []);
+  const [goal, setGoal]   = useFirebaseState(GOAL_KEY, 1);
+  const [filter,   setFilter]   = useState('all');
+  const [search,   setSearch]   = useState('');
   const [expanded, setExpanded] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState(EMPTY);
+  const [form,     setForm]     = useState(EMPTY);
   const [editGoal, setEditGoal] = useState(false);
   const [goalDraft, setGoalDraft] = useState('');
   const coverRef = useRef();
 
-  const save = (next) => { setBooks(next); localStorage.setItem(KEY, JSON.stringify(next)); };
-
-  const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const save = (next) => setBooks(next);
+  const setF  = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleCover = (e) => {
     const file = e.target.files[0];
@@ -216,17 +256,20 @@ export default function BookTracker() {
 
   const saveGoal = () => {
     const v = parseInt(goalDraft, 10);
-    if (!isNaN(v) && v > 0) { setGoal(v); localStorage.setItem(GOAL_KEY, String(v)); }
+    if (!isNaN(v) && v > 0) setGoal(v);
     setEditGoal(false);
   };
 
   const ws = getMondayStr();
   const doneThisWeek = books.filter(b => b.status === 'done' && (b.endDate || b.addedAt) >= ws).length;
-  const filtered = filter === 'all' ? books : books.filter(b => b.status === filter);
+
+  const filtered = books
+    .filter(b => filter === 'all' || b.status === filter)
+    .filter(b => matchesSearch(b, search));
 
   return (
     <div>
-      {/* ── GOAL STRIP ── */}
+      {/* Goal strip */}
       <div className="cm-goal-strip">
         <span className="cm-label">Goal settimanale</span>
         {editGoal ? (
@@ -249,7 +292,7 @@ export default function BookTracker() {
         </button>
       </div>
 
-      {/* ── ADD FORM ── */}
+      {/* Add form */}
       {showForm && (
         <div className="cm-book-form">
           <div className="cm-form-row">
@@ -323,14 +366,10 @@ export default function BookTracker() {
                 style={{ display: 'none' }} onChange={handleCover} />
             </div>
           </div>
-          {[
-            ['notes',       'Note libere'],
-            ['learnings',   'Insegnamenti chiave'],
-            ['application', 'Come lo applico alla vita'],
-          ].map(([field, label]) => (
+          {TEXT_FIELDS.map(([field, label]) => (
             <div key={field} className="cm-form-group" style={{ marginBottom: 12 }}>
               <label className="cm-label">{label}</label>
-              <textarea className="cm-input cm-textarea" rows={3}
+              <textarea className="cm-input cm-textarea" rows={field === 'quote' ? 2 : 3}
                 value={form[field]} onChange={e => setF(field, e.target.value)}
                 placeholder={`${label}...`} />
             </div>
@@ -343,27 +382,50 @@ export default function BookTracker() {
         </div>
       )}
 
-      {/* ── FILTER TABS ── */}
-      <div className="cm-filter-tabs">
-        {FILTERS.map(([v, l]) => (
-          <button key={v} className={`cm-tab${filter === v ? ' active' : ''}`}
-            onClick={() => setFilter(v)}>{l}</button>
-        ))}
+      {/* Search */}
+      <div className="cm-book-search">
+        <input
+          className="cm-input cm-search-input"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Cerca in titoli, note, citazioni, insegnamenti..."
+        />
+        {search && (
+          <button className="cm-btn cm-btn-ghost" onClick={() => setSearch('')}>×</button>
+        )}
       </div>
+      {search.trim() && (
+        <div style={{ fontSize: 11, color: 'var(--text2)', marginBottom: 12, letterSpacing: '0.04em' }}>
+          {filtered.length} risultati per "{search}"
+        </div>
+      )}
 
-      {/* ── BOOK LIST ── */}
-      {filtered.length === 0
-        ? <div className="cm-empty">Nessun libro in questa categoria</div>
-        : filtered.map(book => (
-          <BookItem
-            key={book.id}
-            book={book}
-            expanded={expanded === book.id}
-            onToggle={() => setExpanded(expanded === book.id ? null : book.id)}
-            onPatch={p => patch(book.id, p)}
-            onRemove={() => remove(book.id)}
-          />
-        ))}
+      {/* Filter tabs */}
+      {!search && (
+        <div className="cm-filter-tabs">
+          {FILTERS.map(([v, l]) => (
+            <button key={v} className={`cm-tab${filter === v ? ' active' : ''}`}
+              onClick={() => setFilter(v)}>{l}</button>
+          ))}
+        </div>
+      )}
+
+      {/* Book list */}
+      {filtered.length === 0 ? (
+        <div className="cm-empty">
+          {search ? 'Nessun risultato per questa ricerca' : 'Nessun libro in questa categoria'}
+        </div>
+      ) : filtered.map(book => (
+        <BookItem
+          key={book.id}
+          book={book}
+          expanded={expanded === book.id}
+          onToggle={() => setExpanded(expanded === book.id ? null : book.id)}
+          onPatch={p => patch(book.id, p)}
+          onRemove={() => remove(book.id)}
+          search={search}
+        />
+      ))}
     </div>
   );
 }

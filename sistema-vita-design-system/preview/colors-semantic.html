@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f5f3ef; font-family:system-ui,-apple-system,sans-serif; padding:20px; }
+.row { display:flex; gap:10px; margin-bottom:10px; }
+.status-card {
+  flex:1; border:1px solid; border-top-width:3px;
+  padding:14px 16px; background:#f5f3ef;
+}
+.status-label { font-size:9px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px; }
+.badge {
+  display:inline-block; font-size:9px; font-weight:800;
+  letter-spacing:0.06em; padding:3px 10px; border:1px solid; margin-top:4px;
+}
+.hint { font-size:10px; color:#6e6a62; margin-top:4px; }
+.sep { height:1px; background:#d4d0c8; margin:10px 0; }
+.accent-demo { background:#c8f564; padding:12px 16px; display:inline-flex; align-items:center; gap:16px; }
+.accent-check {
+  width:20px; height:20px; background:#c8f564; border:1px solid #c8f564;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:800; color:#1a1a1a;
+}
+.score-row { display:flex; gap:16px; align-items:baseline; }
+.score { font-size:36px; font-weight:800; letter-spacing:-0.04em; line-height:1; }
+</style>
+</head><body>
+<div class="row">
+  <div class="status-card" style="border-color:#5aaa3a; border-top-color:#5aaa3a;">
+    <div class="status-label" style="color:#3a7a1a">Verde — Completato</div>
+    <div class="badge" style="background:rgba(90,170,58,0.12);border-color:#5aaa3a;color:#3a7a1a">4/4</div>
+    <div class="hint">score ≥ 8</div>
+  </div>
+  <div class="status-card" style="border-color:#d4a820; border-top-color:#d4a820;">
+    <div class="status-label" style="color:#7a5800">Giallo — Parziale</div>
+    <div class="badge" style="background:rgba(212,168,32,0.12);border-color:#d4a820;color:#7a5800">2/4</div>
+    <div class="hint">score 5–8</div>
+  </div>
+  <div class="status-card" style="border-color:#b94040; border-top-color:#b94040;">
+    <div class="status-label" style="color:#b94040">Rosso — Alert</div>
+    <div class="badge" style="background:rgba(185,64,64,0.08);border-color:#b94040;color:#b94040">0/4</div>
+    <div class="hint">score &lt; 5</div>
+  </div>
+</div>
+<div class="sep"></div>
+<div class="score-row">
+  <div><div class="score" style="color:#c8f564;background:#1a1a1a;padding:8px 14px;">9.2<span style="font-size:16px;font-weight:400;opacity:0.6">/10</span></div><div style="font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.45);background:#1a1a1a;padding:4px 14px 8px;">verde ≥8</div></div>
+  <div><div class="score" style="color:#f0d060;background:#1a1a1a;padding:8px 14px;">6.5<span style="font-size:16px;font-weight:400;opacity:0.6">/10</span></div><div style="font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.45);background:#1a1a1a;padding:4px 14px 8px;">giallo 5–8</div></div>
+  <div><div class="score" style="color:#e07070;background:#1a1a1a;padding:8px 14px;">2.0<span style="font-size:16px;font-weight:400;opacity:0.6">/10</span></div><div style="font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.45);background:#1a1a1a;padding:4px 14px 8px;">rosso &lt;5</div></div>
+</div>
+</body></html>

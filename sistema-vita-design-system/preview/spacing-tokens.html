@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f5f3ef; font-family:system-ui,-apple-system,sans-serif; padding:20px; }
+.grid { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.sp { background:#c8f564; display:flex; align-items:flex-end; }
+.sp-label { font-size:9px; font-weight:700; letter-spacing:0.08em; color:#1a1a1a; padding:3px 5px; white-space:nowrap; }
+.sep { height:1px; background:#d4d0c8; margin:12px 0; }
+.row { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+.meta { font-size:9px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:#b8b4ac; width:80px; }
+.demo { font-size:11px; font-weight:600; color:#6e6a62; }
+</style>
+</head><body>
+
+<div class="grid">
+  <div><div class="sp" style="width:4px;height:32px;"></div><div class="sp-label">4</div></div>
+  <div><div class="sp" style="width:8px;height:32px;"></div><div class="sp-label">8</div></div>
+  <div><div class="sp" style="width:12px;height:32px;"></div><div class="sp-label">12</div></div>
+  <div><div class="sp" style="width:16px;height:32px;"></div><div class="sp-label">16</div></div>
+  <div><div class="sp" style="width:20px;height:32px;"></div><div class="sp-label">20</div></div>
+  <div><div class="sp" style="width:24px;height:32px;"></div><div class="sp-label">24</div></div>
+  <div><div class="sp" style="width:28px;height:32px;"></div><div class="sp-label">28</div></div>
+  <div><div class="sp" style="width:32px;height:32px;"></div><div class="sp-label">32</div></div>
+  <div><div class="sp" style="width:48px;height:32px;"></div><div class="sp-label">48 section-px</div></div>
+  <div><div class="sp" style="width:64px;height:32px;"></div><div class="sp-label">64</div></div>
+  <div><div class="sp" style="width:80px;height:32px;"></div><div class="sp-label">80 page-bottom</div></div>
+</div>
+
+<div class="sep"></div>
+
+<div class="row"><div class="meta">radius</div><div class="demo">0 — tutto quadrato, nessun bordo arrotondato</div></div>
+<div class="row"><div class="meta">border</div><div style="display:flex;gap:8px;">
+  <div style="width:40px;height:24px;border:1px solid #d4d0c8;"></div>
+  <div style="width:40px;height:24px;border:1px solid #b0ac9f;"></div>
+  <div style="width:40px;height:24px;border-top:3px solid #5aaa3a;border:1px solid #d4d0c8;border-top-width:3px;"></div>
+  <div style="font-size:9px;font-weight:700;letter-spacing:0.08em;color:#b8b4ac;align-self:center;">1px · 1px strong · 3px status-top</div>
+</div></div>
+
+<div class="row"><div class="meta">progress</div>
+  <div style="flex:1;max-width:200px;">
+    <div style="height:2px;background:#d4d0c8;position:relative;overflow:hidden;margin-bottom:6px;">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:65%;background:#c8f564;"></div>
+    </div>
+    <div style="height:3px;background:#d4d0c8;position:relative;overflow:hidden;">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:40%;background:#c8f564;"></div>
+    </div>
+    <div style="font-size:9px;color:#b8b4ac;margin-top:4px;letter-spacing:0.06em;">2px · 3px</div>
+  </div>
+</div>
+
+<div class="row"><div class="meta">max-width</div><div class="demo">800px — contenuto centrato</div></div>
+
+</body></html>

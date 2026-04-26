@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#1a1a1a; font-family:system-ui,-apple-system,sans-serif; }
+
+/* Grain overlay */
+.grain {
+  position:fixed; inset:0; pointer-events:none; z-index:99999;
+  mix-blend-mode:multiply; opacity:0.16;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75 0.80' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat:repeat; background-size:200px 200px;
+}
+
+.hero {
+  background:#2d3a2e; position:relative; overflow:hidden;
+  padding:40px 48px 32px; border-bottom:1px solid #1e281f;
+}
+.hero-grain {
+  position:absolute; inset:0; pointer-events:none; z-index:1;
+  opacity:0.30; mix-blend-mode:overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72 0.76' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat:repeat; background-size:200px 200px;
+}
+.hero-title {
+  position:relative; z-index:2;
+  font-size:48px; font-weight:900; color:#ffffff;
+  letter-spacing:0.04em; text-transform:uppercase;
+  line-height:0.95; margin:0;
+}
+
+.cream-section {
+  background:#f5f3ef; padding:20px 24px;
+  position:relative; overflow:hidden;
+}
+.cream-grain {
+  position:absolute; inset:0; pointer-events:none;
+  mix-blend-mode:multiply; opacity:0.16;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75 0.80' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat:repeat; background-size:200px 200px;
+}
+.cream-content { position:relative; z-index:2; font-size:13px; color:#6e6a62; }
+.meta { font-size:9px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:#b8b4ac; margin-bottom:6px; }
+</style>
+</head><body>
+<div class="grain"></div>
+
+<div class="hero">
+  <div class="hero-grain"></div>
+  <div style="position:relative;z-index:2;">
+    <div class="meta" style="color:rgba(255,255,255,0.4);margin-bottom:6px;">Page Hero — #2d3a2e + grain 0.30</div>
+    <div class="hero-title">Money & Lavoro</div>
+  </div>
+</div>
+
+<div class="cream-section">
+  <div class="cream-grain"></div>
+  <div class="cream-content">
+    <div class="meta">Cream bg #f5f3ef + grain 0.16 multiply</div>
+    Grain overlay su sfondo caldo — analog texture su tutta la pagina
+  </div>
+</div>
+
+</body></html>

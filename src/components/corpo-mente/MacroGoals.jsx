@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const DEFAULTS = { proteine: 180, carboidrati: 250, grassi: 70, calorie: 2400 };
 const KEY = 'sv_macros';
@@ -11,10 +12,7 @@ const ITEMS = [
 ];
 
 export default function MacroGoals() {
-  const [macros, setMacros] = useState(() => {
-    try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY)) }; }
-    catch { return DEFAULTS; }
-  });
+  const [macros, setMacros] = useFirebaseState(KEY, DEFAULTS);
   const [editing, setEditing] = useState(null);
   const [draft, setDraft] = useState('');
 
@@ -22,11 +20,7 @@ export default function MacroGoals() {
 
   const commit = () => {
     const v = parseInt(draft, 10);
-    if (!isNaN(v) && v > 0) {
-      const next = { ...macros, [editing]: v };
-      setMacros(next);
-      localStorage.setItem(KEY, JSON.stringify(next));
-    }
+    if (!isNaN(v) && v > 0) setMacros({ ...macros, [editing]: v });
     setEditing(null);
   };
 

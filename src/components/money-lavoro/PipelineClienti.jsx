@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY          = 'ml_pipeline';
 const OUTREACH_KEY = 'ml_outreach';
@@ -20,19 +21,12 @@ const STATO_BG = {
 const eur      = n => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(Number(n) || 0);
 const todayStr = () => new Date().toISOString().split('T')[0];
 
-function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
-function loadOutreach() {
-  try {
-    const d = JSON.parse(localStorage.getItem(OUTREACH_KEY) || '{}');
-    return d.date === todayStr() ? !!d.done : false;
-  } catch { return false; }
-}
-
 const EMPTY = { nome: '', valore_stimato: '', stato: 'contattato', ultimo_contatto: todayStr(), note: '' };
 
 export default function PipelineClienti() {
-  const [clients,  setClients]  = useState(load);
-  const [outreach, setOutreach] = useState(loadOutreach);
+  const [clients,       setClients]  = useFirebaseState(KEY, []);
+  const [outreachData,  setOutreachData] = useFirebaseState(OUTREACH_KEY, {});
+  const outreach = outreachData?.date === todayStr() ? !!outreachData.done : false;
   const [showForm, setShowForm] = useState(false);
   const [editId,   setEditId]   = useState(null);
   const [form,     setForm]     = useState({ ...EMPTY });
@@ -43,11 +37,9 @@ export default function PipelineClienti() {
   const save = () => {
     if (!form.nome) return;
     const entry = { ...form, valore_stimato: parseFloat(form.valore_stimato) || 0 };
-    const next  = editId
+    setClients(editId
       ? clients.map(c => c.id === editId ? { ...c, ...entry } : c)
-      : [{ id: Date.now(), ...entry }, ...clients];
-    setClients(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
+      : [{ id: Date.now(), ...entry }, ...clients]);
     setShowForm(false);
     setEditId(null);
     setForm({ ...EMPTY });
@@ -59,23 +51,13 @@ export default function PipelineClienti() {
     setShowForm(true);
   };
 
-  const updateStato = (id, stato) => {
-    const next = clients.map(c => c.id === id ? { ...c, stato, ultimo_contatto: todayStr() } : c);
-    setClients(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  };
+  const updateStato = (id, stato) =>
+    setClients(clients.map(c => c.id === id ? { ...c, stato, ultimo_contatto: todayStr() } : c));
 
-  const remove = id => {
-    const next = clients.filter(c => c.id !== id);
-    setClients(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  };
+  const remove = id => setClients(clients.filter(c => c.id !== id));
 
-  const toggleOutreach = () => {
-    const next = !outreach;
-    setOutreach(next);
-    localStorage.setItem(OUTREACH_KEY, JSON.stringify({ date: todayStr(), done: next }));
-  };
+  const toggleOutreach = () =>
+    setOutreachData({ date: todayStr(), done: !outreach });
 
   const filtered       = filter === 'tutti' ? clients : clients.filter(c => c.stato === filter);
   const pipelineValue  = clients.filter(c => !['acquisito', 'perso'].includes(c.stato)).reduce((s, c) => s + c.valore_stimato, 0);

@@ -2,10 +2,9 @@ import { useState } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY = 'ml_benessere';
-
-function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
 
 function fmtDate(s) {
   return new Date(s + 'T12:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
@@ -38,23 +37,16 @@ function Slider({ label, value, onChange, hint }) {
 }
 
 export default function BenessereLayout() {
-  const [checks,  setChecks]  = useState(load);
+  const [checks, setChecks] = useFirebaseState(KEY, []);
   const [burnout, setBurnout] = useState(5);
   const [purpose, setPurpose] = useState(5);
   const [carico,  setCarico]  = useState(5);
 
   const save = () => {
-    const entry = { id: Date.now(), date: new Date().toISOString().split('T')[0], burnout, purpose, carico };
-    const next  = [...checks, entry];
-    setChecks(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
+    setChecks([...checks, { id: Date.now(), date: new Date().toISOString().split('T')[0], burnout, purpose, carico }]);
   };
 
-  const remove = id => {
-    const next = checks.filter(c => c.id !== id);
-    setChecks(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  };
+  const remove = id => setChecks(checks.filter(c => c.id !== id));
 
   const chartData = [...checks].slice(-16).map(c => ({
     date:    fmtDate(c.date),

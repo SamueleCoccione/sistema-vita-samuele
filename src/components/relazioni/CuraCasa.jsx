@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY = 'rel_cura_casa';
 
@@ -23,12 +24,10 @@ function fmtWeek(w) {
   const f = d => d.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
   return `${f(s)} – ${f(e)}`;
 }
-function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
-
 const allDone = e => CHECKS.every(c => e[c.k]);
 
 export default function CuraCasa() {
-  const [entries, setEntries] = useState(load);
+  const [entries, setEntries] = useFirebaseState(KEY, []);
   const cw       = weekStart();
   const td       = today();
   const existing = entries.find(e => e.week === cw) || null;
@@ -36,11 +35,9 @@ export default function CuraCasa() {
 
   const save = () => {
     const entry = { ...form, saved_at: td };
-    const next  = existing
+    setEntries(existing
       ? entries.map(e => e.week === cw ? entry : e)
-      : [...entries, entry];
-    setEntries(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
+      : [...entries, entry]);
   };
 
   const lastComplete = [...entries]

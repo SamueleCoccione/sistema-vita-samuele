@@ -1,0 +1,433 @@
+/* ================================================================
+   NUTRITION TRACKER
+================================================================ */
+
+/* ── Profile strip ── */
+.nt-profile {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.nt-profile-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.nt-profile-lbl {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+.nt-profile-summary {
+  font-size: 11px;
+  color: var(--text2);
+  flex: 1;
+  font-family: var(--font-mono);
+}
+.nt-profile-toggle {
+  font-size: 8px;
+  color: var(--text3);
+}
+
+.nt-profile-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  padding: 12px 0 16px;
+  border-top: 1px solid var(--border);
+}
+.nt-profile-field { display: flex; flex-direction: column; gap: 4px; }
+.nt-profile-readonly {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text2);
+}
+.nt-profile-readonly span { font-size: 10px; font-weight: 400; margin-left: 2px; }
+.nt-gender-btns { display: flex; gap: 0; }
+.nt-gender-btn {
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text2);
+  transition: all 0.12s;
+}
+.nt-gender-btn:first-child { border-right: none; }
+.nt-gender-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+/* ── API key setup ── */
+.nt-apikey-setup {
+  padding: 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.nt-apikey-row { display: flex; gap: 8px; max-width: 380px; }
+.nt-apikey-desc { font-size: 11px; color: var(--text2); }
+.nt-apikey-active {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--status-green-text);
+  background: var(--status-green-bg);
+  border: 1px solid var(--status-green);
+  padding: 3px 9px;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Compose ── */
+.nt-compose { padding: 20px 0 16px; border-bottom: 1px solid var(--border); }
+.nt-compose-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.nt-date-input { width: 150px; }
+.nt-textarea {
+  min-height: 80px;
+  resize: vertical;
+  flex: 1;
+  min-width: 200px;
+}
+.nt-compose-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+}
+.nt-loading-hint {
+  font-size: 10px;
+  color: var(--text2);
+  letter-spacing: 0.06em;
+  animation: nt-pulse 1.2s ease-in-out infinite;
+}
+@keyframes nt-pulse { 0%,100% { opacity:0.4; } 50% { opacity:1; } }
+
+/* ── Result card ── */
+.nt-result {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  padding: 16px 18px;
+  margin-top: 12px;
+}
+.nt-result-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.nt-kcal { display: flex; align-items: baseline; gap: 5px; }
+.nt-kcal-num {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text);
+  font-family: var(--font-mono);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.nt-kcal-unit {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text2);
+}
+.nt-kcal-tdee {
+  font-size: 11px;
+  color: var(--text3);
+  margin-left: 6px;
+  font-family: var(--font-mono);
+}
+.nt-result-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.nt-pct {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text2);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.nt-pct::after { content: '%'; font-size: 12px; font-weight: 400; margin-left: 1px; }
+
+/* Balance badge */
+.nt-balance {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: 1px solid;
+}
+.nt-bal-ok      { background: var(--status-green-bg);  border-color: var(--status-green);  color: var(--status-green-text); }
+.nt-bal-deficit { background: var(--status-yellow-bg); border-color: var(--status-yellow); color: var(--status-yellow-text); }
+.nt-bal-surplus { background: var(--status-red-bg);    border-color: var(--status-red);    color: var(--status-red-text); }
+
+/* Macro bars */
+.nt-macro-bars { margin-bottom: 12px; }
+.nt-macro-bar-wrap {
+  height: 5px;
+  display: flex;
+  background: var(--border);
+  margin-bottom: 7px;
+  overflow: hidden;
+}
+.nt-macro-bar { height: 100%; transition: width 0.5s ease; }
+.nt-macro-p { background: var(--chart-blue); }
+.nt-macro-c { background: var(--score-yellow); }
+.nt-macro-f { background: var(--chart-orange); }
+.nt-macro-legend { display: flex; gap: 14px; }
+.nt-macro-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text2);
+  font-family: var(--font-mono);
+}
+.nt-macro-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.nt-macro-p-dot { background: var(--chart-blue); }
+.nt-macro-c-dot { background: var(--score-yellow); }
+.nt-macro-f-dot { background: var(--chart-orange); }
+
+/* Note */
+.nt-note {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.55;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+/* ── Day group (inside month) ── */
+.nt-month-days { display: flex; flex-direction: column; }
+
+.nt-day {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.nt-day:last-child { border-bottom: none; }
+
+.nt-day-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s;
+  flex-wrap: wrap;
+}
+.nt-day-head:hover { background: rgba(0,0,0,0.02); }
+.nt-day-head.open  {
+  background: rgba(200,245,100,0.06);
+  border-left-color: var(--accent);
+}
+
+.nt-day-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  min-width: 130px;
+}
+.nt-day-kcal {
+  font-size: 14px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.nt-day-kcal span { font-size: 10px; font-weight: 400; color: var(--text3); margin-left: 2px; }
+.nt-day-count {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  border: 1px solid var(--border);
+  padding: 1px 7px;
+}
+.nt-day-chevron { font-size: 8px; color: var(--text3); margin-left: auto; }
+
+.nt-day-body { background: rgba(200,245,100,0.025); }
+
+/* Day totals bar (shown when >1 entry) */
+.nt-day-totals {
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.02);
+}
+.nt-day-totals-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 7px;
+}
+.nt-day-totals-lbl {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+.nt-day-totals-tdee {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+}
+
+/* Entry rows inside day */
+.nt-entry-preview {
+  font-size: 12px;
+  color: var(--text2);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: italic;
+}
+
+/* ── History monthly accordion ── */
+.nt-months { display: flex; flex-direction: column; margin-top: 24px; }
+
+.nt-month { border-bottom: 1px solid var(--border); }
+.nt-month:first-child { border-top: 1px solid var(--border); }
+
+.nt-month-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.12s;
+}
+.nt-month-head:hover { background: rgba(0,0,0,0.02); }
+.nt-month-head.open  { background: rgba(200,245,100,0.07); }
+.nt-month-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.nt-month-count {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text2);
+  border: 1px solid var(--border);
+  padding: 1px 8px;
+}
+.nt-month-avg {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text3);
+  font-family: var(--font-mono);
+}
+.nt-month-current {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--status-green-text);
+  background: var(--status-green-bg);
+  border: 1px solid var(--status-green);
+  padding: 2px 7px;
+}
+.nt-month-chevron { font-size: 8px; color: var(--text3); margin-left: auto; }
+
+/* Entry rows inside month */
+.nt-entry {
+  border-bottom: 1px solid var(--border);
+}
+.nt-entry:last-child { border-bottom: none; }
+
+.nt-entry-compact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px 10px 28px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.nt-entry-compact:hover { background: rgba(0,0,0,0.025); }
+.nt-entry.open > .nt-entry-compact { background: rgba(200,245,100,0.07); }
+
+.nt-entry-date {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+  min-width: 80px;
+}
+.nt-entry-kcal {
+  font-size: 14px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.nt-entry-kcal-u { font-size: 10px; font-weight: 400; color: var(--text3); margin-left: 2px; }
+.nt-entry-chevron { font-size: 8px; color: var(--text3); margin-left: auto; }
+
+.nt-entry-expanded {
+  padding: 0 16px 14px 28px;
+  background: rgba(200,245,100,0.04);
+  border-top: 1px solid var(--border);
+}
+.nt-entry-desc {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+  padding: 12px 0 10px;
+  font-style: italic;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.nt-entry-delete {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 8px;
+  text-decoration: underline;
+  padding: 0;
+}
+.nt-entry-delete:hover { color: var(--status-red); }

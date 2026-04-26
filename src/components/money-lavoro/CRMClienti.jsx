@@ -1,10 +1,12 @@
 import { useState, useRef, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import Anthropic from '@anthropic-ai/sdk';
+import Groq from 'groq-sdk';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const CRM_KEY    = 'ml_crm';
 const OUT_KEY    = 'ml_crm_outreach';
-const APIKEY_KEY = 'sv_anthropic_key';
+const APIKEY_KEY = 'sv_groq_key';
+const MODEL      = 'llama-3.3-70b-versatile';
 
 const STATI = [
   { id: 'identificato', label: 'Identificato',      color: '#8a8680' },
@@ -91,8 +93,6 @@ Samuele`,
 
 function today()           { return new Date().toISOString().split('T')[0]; }
 function daysBetween(a, b) { return Math.floor((new Date(b) - new Date(a)) / 86400000); }
-function loadClients()     { try { return JSON.parse(localStorage.getItem(CRM_KEY) || '[]'); }  catch { return []; } }
-function loadOut()         { try { return JSON.parse(localStorage.getItem(OUT_KEY)  || '{}'); } catch { return {}; } }
 function statoInfo(id)     { return STATI.find(s => s.id === id) || STATI[0]; }
 const fmt = n => n ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n) : null;
 
@@ -105,8 +105,8 @@ const EMPTY_FORM = {
 };
 
 export default function CRMClienti() {
-  const [clients, setClients] = useState(loadClients);
-  const [outData, setOutData] = useState(loadOut);
+  const [clients, setClients] = useFirebaseState(CRM_KEY, []);
+  const [outData, setOutData] = useFirebaseState(OUT_KEY, {});
   const [view,    setView]    = useState('pipeline');
   const [form,    setForm]    = useState(null);
   const [editId,  setEditId]  = useState(null);
@@ -120,10 +120,7 @@ export default function CRMClienti() {
   const csvRef = useRef(null);
 
   // ─── persist
-  const save = next => {
-    setClients(next);
-    localStorage.setItem(CRM_KEY, JSON.stringify(next));
-  };
+  const save = next => setClients(next);
 
   // ─── outreach
   const todayStr    = today();
@@ -147,17 +144,11 @@ export default function CRMClienti() {
 
   const silentDays = lastOutreach ? daysBetween(lastOutreach, todayStr) : null;
 
-  const addOutreach = () => {
-    const next = { ...outData, [todayStr]: (outData[todayStr] || 0) + 1 };
-    setOutData(next);
-    localStorage.setItem(OUT_KEY, JSON.stringify(next));
-  };
+  const addOutreach = () =>
+    setOutData({ ...outData, [todayStr]: (outData[todayStr] || 0) + 1 });
 
-  const resetTodayOutreach = () => {
-    const next = { ...outData, [todayStr]: 0 };
-    setOutData(next);
-    localStorage.setItem(OUT_KEY, JSON.stringify(next));
-  };
+  const resetTodayOutreach = () =>
+    setOutData({ ...outData, [todayStr]: 0 });
 
   // ─── CRUD
   const upsert = () => {
@@ -222,9 +213,11 @@ export default function CRMClienti() {
     e.target.value = '';
   };
 
+  const [groqKey] = useFirebaseState(APIKEY_KEY, '');
+
   // ─── email generator
   const generateEmail = async () => {
-    const apiKey = localStorage.getItem(APIKEY_KEY);
+    const apiKey = groqKey;
     const tpl    = TEMPLATES.find(t => t.id === emailGen.templateId);
     if (!tpl) return;
     const subst = tpl.text
@@ -238,19 +231,19 @@ export default function CRMClienti() {
       let out = '';
       setGenEmail('...');
       try {
-        const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
-        const stream = await client.messages.create({
-          model:      'claude-opus-4-7',
+        const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
+        const stream = await groq.chat.completions.create({
+          model:     MODEL,
           max_tokens: 400,
-          system:     'Sei Samuele, videomaker e content creator freelance italiano. Scrivi email di outreach brevi, dirette, autentiche. Niente corporate speak. Max 120 parole.',
-          messages:   [{ role: 'user', content: `Riscrivi questa email rendendola più specifica e personale per ${emailGen.nome} di ${emailGen.azienda}${emailGen.servizio ? `, servizio: ${emailGen.servizio}` : ''}. Mantieni tono e struttura, aggiungi un dettaglio reale:\n\n${subst}` }],
-          stream:     true,
+          messages: [
+            { role: 'system', content: 'Sei Samuele, videomaker e content creator freelance italiano. Scrivi email di outreach brevi, dirette, autentiche. Niente corporate speak. Max 120 parole.' },
+            { role: 'user',   content: `Riscrivi questa email rendendola più specifica e personale per ${emailGen.nome} di ${emailGen.azienda}${emailGen.servizio ? `, servizio: ${emailGen.servizio}` : ''}. Mantieni tono e struttura, aggiungi un dettaglio reale:\n\n${subst}` },
+          ],
+          stream: true,
         });
-        for await (const ev of stream) {
-          if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') {
-            out += ev.delta.text;
-            setGenEmail(out);
-          }
+        for await (const chunk of stream) {
+          const delta = chunk.choices[0]?.delta?.content || '';
+          if (delta) { out += delta; setGenEmail(out); }
         }
       } catch { setGenEmail(subst); }
       finally { setGenBusy(false); }
@@ -511,7 +504,7 @@ export default function CRMClienti() {
             </div>
 
             <button className="cm-btn" onClick={generateEmail} disabled={genBusy}>
-              {genBusy ? '...' : localStorage.getItem(APIKEY_KEY) ? 'Genera con Claude' : 'Usa template'}
+              {genBusy ? '...' : groqKey ? 'Genera con Claude' : 'Usa template'}
             </button>
 
             {generatedEmail && (

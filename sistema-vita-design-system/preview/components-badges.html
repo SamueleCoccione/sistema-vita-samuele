@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f5f3ef; font-family:system-ui,-apple-system,sans-serif; padding:20px; }
+.meta { font-size:9px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:#b8b4ac; margin-bottom:8px; }
+.sep { height:1px; background:#d4d0c8; margin:12px 0; }
+.row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+
+.badge { font-size:9px; font-weight:800; letter-spacing:0.10em; text-transform:uppercase; padding:3px 10px; }
+.streak-badge { font-size:10px; font-weight:700; letter-spacing:0.06em; border:1px solid #d4d0c8; padding:2px 8px; color:#6e6a62; }
+.status-badge { font-size:9px; font-weight:800; letter-spacing:0.10em; text-transform:uppercase; padding:3px 8px; white-space:nowrap; }
+</style>
+</head><body>
+
+<div class="meta">Status Badges — score cards</div>
+<div class="row">
+  <span class="badge" style="background:rgba(90,170,58,0.12);border:1px solid #5aaa3a;color:#3a7a1a;">4/4</span>
+  <span class="badge" style="background:rgba(212,168,32,0.12);border:1px solid #d4a820;color:#7a5800;">3/5</span>
+  <span class="badge" style="background:rgba(185,64,64,0.08);border:1px solid #b94040;color:#b94040;">0/4</span>
+</div>
+
+<div class="sep"></div>
+<div class="meta">Streak badges</div>
+<div class="row">
+  <span class="streak-badge">12g rucking</span>
+  <span class="streak-badge">5g giorni completi</span>
+  <span class="streak-badge">3g con gesto</span>
+</div>
+
+<div class="sep"></div>
+<div class="meta">Book status</div>
+<div class="row">
+  <span class="status-badge" style="background:#c8f564;color:#1a1a1a;">In lettura</span>
+  <span class="status-badge" style="background:#1a1a1a;color:#f5f3ef;">Finito</span>
+  <span class="status-badge" style="border:1px solid #b0ac9f;color:#6e6a62;">Da leggere</span>
+  <span class="status-badge" style="border:1px solid #d4d0c8;color:#b8b4ac;">Abbandonato</span>
+</div>
+
+<div class="sep"></div>
+<div class="meta">Check badge + inline streak</div>
+<div class="row">
+  <span style="font-size:9px;font-weight:800;letter-spacing:0.08em;background:#c8f564;color:#1a1a1a;padding:2px 6px;">14g</span>
+  <span style="font-size:10px;color:#6e6a62;">streak rucking</span>
+</div>
+
+<div class="sep"></div>
+<div class="meta">Alert bar</div>
+<div style="font-size:11px;font-weight:700;letter-spacing:0.04em;color:#b94040;background:rgba(185,64,64,0.05);border-bottom:1px solid rgba(185,64,64,0.15);padding:8px 18px;max-width:420px;">
+  Nessun contatto oggi. I clienti non arrivano da soli.
+</div>
+
+</body></html>

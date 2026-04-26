@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY = 'rel_famiglia';
 
@@ -7,16 +8,14 @@ const RELAZIONI = ['Genitore', 'Fratello/Sorella', 'Nonno/a', 'Cugino/a', 'Zio/a
 function today()           { return new Date().toISOString().split('T')[0]; }
 function daysBetween(a, b) { return Math.floor((new Date(b) - new Date(a)) / 86400000); }
 function fmtDate(s)        { return new Date(s + 'T12:00:00').toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' }); }
-function load()            { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
-
 const EMPTY = { nome: '', relazione: 'Genitore', ultimo_contatto: today(), note: '' };
 
 export default function FamigliaAffetti() {
-  const [contacts, setContacts] = useState(load);
+  const [contacts, setContacts] = useFirebaseState(KEY, []);
   const [form,     setForm]     = useState(null);
   const [editId,   setEditId]   = useState(null);
 
-  const persist = next => { setContacts(next); localStorage.setItem(KEY, JSON.stringify(next)); };
+  const persist = next => setContacts(next);
 
   const upsert = () => {
     if (!form?.nome.trim()) return;

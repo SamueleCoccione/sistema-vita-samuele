@@ -1,0 +1,239 @@
+/* ================================================================
+   SISTEMA DI VITA — Design System Tokens
+   colors_and_type.css
+================================================================ */
+
+/* ── BASE COLOR PALETTE ── */
+:root {
+  /* Backgrounds */
+  --bg:          #f5f3ef;   /* warm cream — page background */
+  --surface:     #ede9e2;   /* slightly darker — panels, inputs, cards */
+
+  /* Borders */
+  --border:      #d4d0c8;   /* default 1px border */
+  --border2:     #b0ac9f;   /* stronger border, focus rings */
+
+  /* Text */
+  --text:        #1a1a1a;   /* primary — near-black */
+  --text2:       #6e6a62;   /* secondary — warm gray */
+  --text3:       #b8b4ac;   /* tertiary — placeholder, inactive */
+
+  /* Accent */
+  --accent:      #c8f564;   /* lime neon — interactive, active, progress */
+  --accent-text: #1a1a1a;   /* text on lime backgrounds */
+
+  /* Navigation */
+  --nav-bg:      #1a1a1a;   /* dark navbar */
+  --nav-link:    #555555;
+  --nav-hover:   #ffffff;
+  --nav-active:  #c8f564;   /* lime on active nav link */
+  --nav-sep:     #2a2a2a;   /* border between nav items */
+
+  /* Hero */
+  --hero-bg:     #2d3a2e;   /* dark forest green page hero */
+  --hero-text:   #ffffff;
+
+  /* Status — semantic */
+  --status-green:        #5aaa3a;
+  --status-green-bg:     rgba(90,170,58,0.12);
+  --status-green-text:   #3a7a1a;
+
+  --status-yellow:       #d4a820;
+  --status-yellow-bg:    rgba(212,168,32,0.12);
+  --status-yellow-text:  #7a5800;
+
+  --status-red:          #b94040;
+  --status-red-bg:       rgba(185,64,64,0.08);
+  --status-red-text:     #b94040;
+
+  --score-yellow:        #f0d060;  /* dashboard score 5–8 range */
+
+  /* Data / charts */
+  --chart-blue:   #4a7ab5;  /* investments accent */
+  --chart-orange: #c87030;  /* secondary data accent */
+
+  /* Grain overlay (used inline as SVG bg) */
+  --grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75 0.80' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+
+/* ── TYPOGRAPHY ── */
+:root {
+  /* Font stacks */
+  --font-sans:   system-ui, -apple-system, sans-serif;
+  --font-mono:   ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  /* Scale */
+  --text-2xs:   9px;
+  --text-xs:    10px;
+  --text-sm:    11px;
+  --text-base:  13px;
+  --text-md:    14px;
+  --text-lg:    18px;
+  --text-xl:    22px;
+  --text-2xl:   26px;
+  --text-3xl:   28px;
+  --text-4xl:   48px;
+  --text-hero:  64px;
+
+  /* Weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold:   700;
+  --weight-black:  800;
+  --weight-ultra:  900;
+
+  /* Letter spacing */
+  --tracking-tight:  -0.04em;
+  --tracking-snug:   -0.02em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.04em;
+  --tracking-wider:   0.08em;
+  --tracking-widest:  0.10em;
+  --tracking-label:   0.12em;
+  --tracking-nav:     0.18em;
+  --tracking-section: 0.22em;
+}
+
+
+/* ── SEMANTIC TYPOGRAPHY ── */
+
+/* Section/page label — 10px UPPERCASE tracked */
+.t-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text2);
+  line-height: 1.2;
+}
+
+/* Nav link */
+.t-nav {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-nav);
+  text-transform: uppercase;
+}
+
+/* Section title — wider tracked */
+.t-section {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-section);
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+/* Hero title */
+.t-hero {
+  font-family: var(--font-sans);
+  font-size: var(--text-hero);
+  font-weight: var(--weight-ultra);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--hero-text);
+  line-height: 0.95;
+}
+
+/* Large stat number */
+.t-stat-big {
+  font-family: var(--font-sans);
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1;
+  color: var(--text);
+}
+
+/* Medium stat */
+.t-stat-mid {
+  font-family: var(--font-sans);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-snug);
+  line-height: 1;
+  color: var(--text);
+}
+
+/* Greeting / page heading */
+.t-greeting {
+  font-family: var(--font-sans);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-snug);
+  line-height: 1.1;
+  color: var(--hero-text);
+}
+
+/* Body text */
+.t-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-normal);
+  color: var(--text2);
+  line-height: 1.55;
+}
+
+/* Small body */
+.t-body-sm {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: var(--weight-normal);
+  color: var(--text2);
+  line-height: 1.55;
+}
+
+/* Monospace */
+.t-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+/* Hint / metadata */
+.t-hint {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.04em;
+}
+
+
+/* ── SPACING TOKENS ── */
+:root {
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  28px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;   /* section horizontal padding */
+  --space-16: 64px;
+  --space-20: 80px;   /* page bottom padding */
+
+  /* Named spacing */
+  --section-px: 48px;    /* horizontal padding inside sections */
+  --card-px:    18px;    /* card horizontal padding */
+  --card-py:    14px;    /* card vertical padding */
+  --page-max:   800px;   /* max content width */
+  --nav-item-px: 22px;   /* nav link horizontal padding */
+  --nav-item-py: 14px;   /* nav link vertical padding */
+
+  /* Borders */
+  --radius: 0;            /* NO border radius — everything square */
+  --border-width: 1px;
+  --border-status: 3px;  /* top border on status cards */
+
+  /* Progress bars */
+  --progress-h: 2px;
+  --progress-h-thick: 3px;
+}

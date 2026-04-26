@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY        = 'ml_transazioni';
 const GOAL_KEY   = 'ml_entrate_goal';
@@ -35,8 +36,7 @@ function parseDate(s) {
   return `${yr}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
 }
 
-function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
-function loadGoal() { try { return JSON.parse(localStorage.getItem(GOAL_KEY) || 'null') || { val: GOAL_START, history: [] }; } catch { return { val: GOAL_START, history: [] }; } }
+const DEFAULT_GOAL = { val: GOAL_START, history: [] };
 
 const EMPTY = {
   date: todayStr(), descrizione: '', importo: '', tipo: 'uscita',
@@ -44,8 +44,8 @@ const EMPTY = {
 };
 
 export default function Transazioni() {
-  const [entries,  setEntries]  = useState(load);
-  const [goal,     setGoal]     = useState(loadGoal);
+  const [entries, setEntries] = useFirebaseState(KEY, []);
+  const [goal,    setGoal]    = useFirebaseState(GOAL_KEY, DEFAULT_GOAL);
   const [showForm, setShowForm] = useState(false);
   const [editId,   setEditId]   = useState(null);
   const [form,     setForm]     = useState({ ...EMPTY });
@@ -58,10 +58,7 @@ export default function Transazioni() {
   const csvRef = useRef();
   const setF   = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  const persist = next => {
-    setEntries(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  };
+  const persist = next => setEntries(next);
 
   const save = () => {
     if (!form.descrizione || !form.importo) return;
@@ -69,14 +66,11 @@ export default function Transazioni() {
     const next  = editId ? entries.map(e => e.id === editId ? entry : e) : [entry, ...entries];
     persist(next);
 
-    // Adaptive goal: bump +10% when month target is reached
     if (form.tipo === 'entrata') {
       const cm  = form.date.slice(0, 7);
       const tot = next.filter(e => e.tipo === 'entrata' && e.date.slice(0, 7) === cm).reduce((s, e) => s + e.importo, 0);
       if (cm === thisM() && tot >= goal.val && !goal.history.find(h => h.month === cm)) {
-        const ng = { val: Math.round(goal.val * 1.10), history: [...goal.history, { month: cm, target: goal.val, reached: tot }] };
-        setGoal(ng);
-        localStorage.setItem(GOAL_KEY, JSON.stringify(ng));
+        setGoal({ val: Math.round(goal.val * 1.10), history: [...goal.history, { month: cm, target: goal.val, reached: tot }] });
       }
     }
 

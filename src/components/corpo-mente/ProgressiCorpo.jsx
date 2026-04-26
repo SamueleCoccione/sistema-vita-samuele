@@ -1,19 +1,11 @@
 import { useState, useRef } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 import BodyAvatar from './BodyAvatar';
 
 const MEAS_KEY   = 'sv_body_measures';
 const PHOTOS_KEY = 'sv_progressi_photos';
 
 const DEFAULTS = { height: 178, weight: 80, waist: 85, hips: 95 };
-
-function loadMeasures() {
-  try { return JSON.parse(localStorage.getItem(MEAS_KEY) || '[]'); }
-  catch { return []; }
-}
-function loadPhotos() {
-  try { return JSON.parse(localStorage.getItem(PHOTOS_KEY) || '[]'); }
-  catch { return []; }
-}
 
 function bmi(weight, height) {
   if (!weight || !height) return null;
@@ -47,8 +39,8 @@ function getMondayStr() {
 }
 
 export default function ProgressiCorpo() {
-  const [measures, setMeasures] = useState(loadMeasures);
-  const [photos,   setPhotos]   = useState(loadPhotos);
+  const [measures, setMeasures] = useFirebaseState(MEAS_KEY, []);
+  const [photos,   setPhotos]   = useFirebaseState(PHOTOS_KEY, []);
 
   const latest  = measures.length ? measures[measures.length - 1] : DEFAULTS;
   const [form, setForm] = useState({
@@ -67,17 +59,14 @@ export default function ProgressiCorpo() {
   const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const saveMeasures = () => {
-    const entry = {
+    setMeasures([...measures, {
       id: Date.now(),
       date: new Date().toISOString().split('T')[0],
       height: parseFloat(form.height) || 0,
       weight: parseFloat(form.weight) || 0,
       waist:  parseFloat(form.waist)  || 0,
       hips:   parseFloat(form.hips)   || 0,
-    };
-    const next = [...measures, entry];
-    setMeasures(next);
-    localStorage.setItem(MEAS_KEY, JSON.stringify(next));
+    }]);
   };
 
   /* ── photos ── */
@@ -89,25 +78,12 @@ export default function ProgressiCorpo() {
 
   const addPhotoEntry = () => {
     if (!photoForm.front && !photoForm.side) return;
-    const entry = { id: Date.now(), date: photoForm.date, front: photoForm.front, side: photoForm.side };
-    let next;
-    try {
-      next = [entry, ...photos];
-      localStorage.setItem(PHOTOS_KEY, JSON.stringify(next));
-    } catch {
-      alert('Storage pieno — elimina alcune foto.');
-      return;
-    }
-    setPhotos(next);
+    setPhotos([{ id: Date.now(), date: photoForm.date, front: photoForm.front, side: photoForm.side }, ...photos]);
     setPhotoForm({ date: getMondayStr(), front: null, side: null });
     setShowPhotoForm(false);
   };
 
-  const removePhoto = (id) => {
-    const next = photos.filter(p => p.id !== id);
-    setPhotos(next);
-    localStorage.setItem(PHOTOS_KEY, JSON.stringify(next));
-  };
+  const removePhoto = (id) => setPhotos(photos.filter(p => p.id !== id));
 
   /* ── stats ── */
   const diff    = weekDiff(measures);

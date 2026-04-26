@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY_DAILY = 'rel_compagna_daily';
 const KEY_NOTES = 'rel_compagna_note';
@@ -20,17 +21,14 @@ function fmtWeek(w) {
   const f = d => d.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
   return `${f(s)} – ${f(e)}`;
 }
-function loadDaily() { try { return JSON.parse(localStorage.getItem(KEY_DAILY) || '[]'); } catch { return []; } }
-function loadNotes() { try { return JSON.parse(localStorage.getItem(KEY_NOTES) || '[]'); } catch { return []; } }
-
 const DAILY_CHECKS = [
   { k: 'gesto',   label: 'Gesto concreto per lei'      },
   { k: 'ascolto', label: 'Ho ascoltato senza telefono'  },
 ];
 
 export default function Compagna() {
-  const [daily, setDaily] = useState(loadDaily);
-  const [notes, setNotes] = useState(loadNotes);
+  const [daily, setDaily] = useFirebaseState(KEY_DAILY, []);
+  const [notes, setNotes] = useFirebaseState(KEY_NOTES, []);
 
   const td = today();
   const cw = weekStart();
@@ -46,7 +44,6 @@ export default function Compagna() {
       ? daily.map(e => e.date === td ? { ...form } : e)
       : [...daily, { ...form }];
     setDaily(next);
-    localStorage.setItem(KEY_DAILY, JSON.stringify(next));
   };
 
   const saveNote = () => {
@@ -55,7 +52,6 @@ export default function Compagna() {
       ? notes.map(n => n.week === cw ? note : n)
       : [...notes, note];
     setNotes(next);
-    localStorage.setItem(KEY_NOTES, JSON.stringify(next));
   };
 
   const streak = useMemo(() => {

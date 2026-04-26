@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY = 'sv_body_photos';
 
@@ -9,10 +10,7 @@ function fmt(dateStr) {
 }
 
 export default function BodyPhotos() {
-  const [photos, setPhotos] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
-    catch { return []; }
-  });
+  const [photos, setPhotos] = useFirebaseState(KEY, []);
   const fileRef = useRef();
 
   const handleFile = (e) => {
@@ -21,20 +19,13 @@ export default function BodyPhotos() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const entry = { id: Date.now(), date: new Date().toISOString().split('T')[0], src: ev.target.result };
-      const next = [entry, ...photos];
-      setPhotos(next);
-      try { localStorage.setItem(KEY, JSON.stringify(next)); }
-      catch { setPhotos(photos); alert('Storage pieno — elimina alcune foto.'); }
+      setPhotos([entry, ...photos]);
     };
     reader.readAsDataURL(file);
     e.target.value = '';
   };
 
-  const remove = (id) => {
-    const next = photos.filter(p => p.id !== id);
-    setPhotos(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  };
+  const remove = (id) => setPhotos(photos.filter(p => p.id !== id));
 
   return (
     <div>

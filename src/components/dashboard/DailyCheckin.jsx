@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const CHECKIN_KEY = 'sv_daily_checkin';
 
@@ -30,11 +31,6 @@ function getLastDays(n) {
   });
 }
 
-function loadCheckins() {
-  try { return JSON.parse(localStorage.getItem(CHECKIN_KEY) || '[]'); }
-  catch { return []; }
-}
-
 function upsertToday(list, patch) {
   const today = todayStr();
   const idx = list.findIndex(e => e.date === today);
@@ -61,19 +57,15 @@ function calcStreak(map, id) {
 }
 
 export default function DailyCheckin() {
-  const [checkins, setCheckins] = useState(loadCheckins);
+  const [checkins, setCheckins] = useFirebaseState(CHECKIN_KEY, []);
 
   const today = todayStr();
   const map = Object.fromEntries(checkins.map(e => [e.date, e]));
   const todayEntry = map[today] || { rucking: false, sleep: false, reading: false, energy: null };
 
   const update = useCallback((patch) => {
-    setCheckins(prev => {
-      const next = upsertToday(prev, patch);
-      localStorage.setItem(CHECKIN_KEY, JSON.stringify(next));
-      return next;
-    });
-  }, []);
+    setCheckins(upsertToday(checkins, patch));
+  }, [checkins, setCheckins]);
 
   const toggle  = (id)    => update({ [id]: !todayEntry[id] });
   const setEnergy = (lvl) => update({ energy: todayEntry.energy === lvl ? null : lvl });

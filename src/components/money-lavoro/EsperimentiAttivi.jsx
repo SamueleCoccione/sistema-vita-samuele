@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY = 'ml_esperimenti';
 
@@ -9,12 +10,10 @@ const VALUTAZIONI = [
   { k: 'troppo_presto',  label: 'Troppo presto', dot: 'var(--text3)'   },
 ];
 
-function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
-
 const EMPTY = { nome: '', stato: 'attivo', ore: '', ritorno_economico: '', valutazione: 'troppo_presto', note: '' };
 
 export default function EsperimentiAttivi() {
-  const [items,    setItems]    = useState(load);
+  const [items, setItems] = useFirebaseState(KEY, []);
   const [showForm, setShowForm] = useState(false);
   const [editId,   setEditId]   = useState(null);
   const [form,     setForm]     = useState({ ...EMPTY });
@@ -24,11 +23,9 @@ export default function EsperimentiAttivi() {
   const save = () => {
     if (!form.nome) return;
     const entry = { ...form, ore: parseFloat(form.ore) || 0, ritorno_economico: parseFloat(form.ritorno_economico) || 0 };
-    const next  = editId
+    setItems(editId
       ? items.map(i => i.id === editId ? { ...i, ...entry } : i)
-      : [{ id: Date.now(), ...entry }, ...items];
-    setItems(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
+      : [{ id: Date.now(), ...entry }, ...items]);
     setShowForm(false);
     setEditId(null);
     setForm({ ...EMPTY });
@@ -40,11 +37,7 @@ export default function EsperimentiAttivi() {
     setShowForm(true);
   };
 
-  const remove = id => {
-    const next = items.filter(i => i.id !== id);
-    setItems(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  };
+  const remove = id => setItems(items.filter(i => i.id !== id));
 
   const attivi    = items.filter(i => i.stato === 'attivo');
   const totalOre  = attivi.reduce((s, i) => s + (Number(i.ore) || 0), 0);

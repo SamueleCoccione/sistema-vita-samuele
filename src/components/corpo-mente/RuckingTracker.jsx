@@ -1,14 +1,12 @@
 import { useState } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY = 'sv_rucking';
 const today = () => new Date().toISOString().split('T')[0];
 const EMPTY = { date: today(), km: '', duration: '', bagKg: '' };
 
 export default function RuckingTracker() {
-  const [sessions, setSessions] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
-    catch { return []; }
-  });
+  const [sessions, setSessions] = useFirebaseState(KEY, []);
   const [form, setForm] = useState(EMPTY);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -18,17 +16,11 @@ export default function RuckingTracker() {
     const duration = parseInt(form.duration, 10);
     const bagKg = parseFloat(form.bagKg);
     if (!form.date || isNaN(km) || isNaN(duration) || isNaN(bagKg)) return;
-    const next = [{ id: Date.now(), date: form.date, km, duration, bagKg }, ...sessions];
-    setSessions(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
+    setSessions([{ id: Date.now(), date: form.date, km, duration, bagKg }, ...sessions]);
     setForm(f => ({ ...f, km: '', duration: '', bagKg: '' }));
   };
 
-  const remove = (id) => {
-    const next = sessions.filter(s => s.id !== id);
-    setSessions(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  };
+  const remove = (id) => setSessions(sessions.filter(s => s.id !== id));
 
   const totalKm = sessions.reduce((s, e) => s + e.km, 0);
   const avgPace = sessions.length

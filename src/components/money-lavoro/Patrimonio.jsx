@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY = 'ml_patrimonio';
 
@@ -38,16 +39,11 @@ const DEFAULTS = Object.fromEntries([...ALL_VOCI.map(v => [v.k, 0]), ['spese_men
 
 const ACCENT_PER_GROUP = ['var(--accent)', '#4a7ab5', '#c87030'];
 
-function load() {
-  try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; }
-  catch { return { ...DEFAULTS }; }
-}
-
 const eur = n => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(Number(n) || 0);
 
 export default function Patrimonio() {
-  const [data,    setData]    = useState(load);
-  const [draft,   setDraft]   = useState(load);
+  const [data, setData]   = useFirebaseState(KEY, DEFAULTS);
+  const [draft,   setDraft]   = useState(DEFAULTS);
   const [editing, setEditing] = useState(false);
 
   const totale      = ALL_VOCI.reduce((s, v) => s + (Number(data[v.k]) || 0), 0);
@@ -58,9 +54,7 @@ export default function Patrimonio() {
   const cancelEdit = () => setEditing(false);
 
   const save = () => {
-    const next = { ...draft };
-    setData(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
+    setData({ ...draft });
     setEditing(false);
   };
 

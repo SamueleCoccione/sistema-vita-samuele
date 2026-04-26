@@ -1,6 +1,6 @@
 # Sistema di Vita — Samuele
 
-App personale di tracking e gestione vita. Ogni tab copre un dominio di vita specifico con dati salvati in localStorage.
+App personale di tracking e gestione vita. Ogni tab copre un dominio di vita specifico con dati salvati in Firebase Realtime Database.
 
 ## Stack
 
@@ -41,12 +41,22 @@ Classi utili già definite: `cm-btn`, `cm-btn-ghost`, `cm-input`, `cm-label`, `c
 
 ## Persistenza
 
-Tutto in **localStorage**. Nessun backend, nessun DB.
+Tutto in **Firebase Realtime Database** (`firebase/database`). I dati sono sotto il path `/utente/samuele/<key>`.
+
+Hook: `useFirebaseState(key, defaultValue)` in `src/hooks/useFirebaseState.js` — drop-in per `useState` + persistenza. Tutti i valori sono serializzati come JSON string per evitare la conversione array→oggetto di Firebase. Scrive anche in localStorage come cache sincrona (usato dai `downloadTabData`).
+
+`removeFirebaseData(key)` per cancellazioni esplicite (logout, clear chat).
 
 Prefissi chiavi:
 - `sv_` — Corpo & Mente
 - `ml_` — Money & Lavoro
+- `rel_` — Relazioni
+- `lib_` — Libertà
+- `dash_` — Dashboard
 - `sv_anthropic_key` — API key Anthropic (condivisa tra chat)
+- `sv_groq_key` — API key Groq (MoneyChat, LibertaChat)
+
+Config Firebase: variabili `VITE_FIREBASE_*` in `.env`, inizializzato in `src/firebase.js`.
 
 ## Integrazioni attive
 

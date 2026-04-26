@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { useFirebaseState } from '../../hooks/useFirebaseState';
 
 const KEY        = 'ml_uscite';
 const BUDGET_KEY = 'ml_budget';
@@ -12,41 +13,30 @@ const mKey      = d => String(d).slice(0, 7);
 const todayISO  = () => new Date().toISOString().split('T')[0];
 const thisMonth = () => todayISO().slice(0, 7);
 
-function load()       { try { return JSON.parse(localStorage.getItem(KEY)        || '[]'); }  catch { return []; } }
-function loadBudget() { try { return { ...DEFAULT_BUDGET, ...JSON.parse(localStorage.getItem(BUDGET_KEY) || '{}') }; } catch { return { ...DEFAULT_BUDGET }; } }
-
 const EMPTY_FORM = { date: todayISO(), descrizione: '', importo: '', categoria: 'cibo' };
 
 export default function UsciteMensili() {
-  const [entries,  setEntries]  = useState(load);
-  const [budget,   setBudget]   = useState(loadBudget);
+  const [entries, setEntries] = useFirebaseState(KEY, []);
+  const [budget,  setBudget]  = useFirebaseState(BUDGET_KEY, DEFAULT_BUDGET);
   const [showForm, setShowForm] = useState(false);
   const [showBudget, setShowBudget] = useState(false);
   const [form,     setForm]     = useState({ ...EMPTY_FORM });
-  const [budgetDraft, setBudgetDraft] = useState(loadBudget);
+  const [budgetDraft, setBudgetDraft] = useState({ ...DEFAULT_BUDGET });
   const csvRef = useRef();
 
   const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const saveEntry = () => {
     if (!form.importo || !form.date) return;
-    const entry = { id: Date.now(), ...form, importo: parseFloat(form.importo) };
-    const next  = [entry, ...entries];
-    setEntries(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
+    setEntries([{ id: Date.now(), ...form, importo: parseFloat(form.importo) }, ...entries]);
     setForm({ ...EMPTY_FORM });
     setShowForm(false);
   };
 
-  const remove = id => {
-    const next = entries.filter(e => e.id !== id);
-    setEntries(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  };
+  const remove = id => setEntries(entries.filter(e => e.id !== id));
 
   const saveBudget = () => {
     setBudget({ ...budgetDraft });
-    localStorage.setItem(BUDGET_KEY, JSON.stringify(budgetDraft));
     setShowBudget(false);
   };
 
@@ -62,9 +52,7 @@ export default function UsciteMensili() {
         if (!date || isNaN(amt) || amt <= 0) return [];
         return [{ id: Date.now() + Math.random(), date, descrizione: cols[1] || '', importo: amt, categoria: 'altro' }];
       });
-      const next = [...imported, ...entries];
-      setEntries(next);
-      localStorage.setItem(KEY, JSON.stringify(next));
+      setEntries([...imported, ...entries]);
     };
     reader.readAsText(file);
     e.target.value = '';

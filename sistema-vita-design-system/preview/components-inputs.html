@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f5f3ef; font-family:system-ui,-apple-system,sans-serif; padding:24px 28px; }
+
+.meta { font-size:9px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:#b8b4ac; margin-bottom:16px; }
+.sep { height:1px; background:#d4d0c8; margin:20px 0; }
+
+/* ── Underline input — delicato ── */
+.field {
+  display:flex; flex-direction:column; gap:0;
+  position:relative; margin-bottom:4px;
+}
+.field-label {
+  font-size:9px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase;
+  color:#b8b4ac; margin-bottom:6px; transition:color 0.2s;
+}
+.field:focus-within .field-label { color:#1a1a1a; }
+
+.input-line {
+  background:transparent; border:none;
+  border-bottom:1px solid #d4d0c8;
+  color:#1a1a1a; padding:8px 0;
+  font-size:14px; font-family:inherit; outline:none;
+  width:100%; transition:border-color 0.2s;
+  border-radius:0;
+}
+.input-line::placeholder { color:#b8b4ac; }
+.input-line:focus { border-bottom-color:#1a1a1a; }
+
+/* Accent underline bar on focus */
+.field-underline {
+  height:1px; background:#c8f564;
+  transform:scaleX(0); transform-origin:left;
+  transition:transform 0.25s ease; margin-top:-1px;
+}
+.field:focus-within .field-underline { transform:scaleX(1); }
+
+/* ── Row ── */
+.form-row { display:flex; gap:24px; margin-bottom:20px; align-items:flex-end; flex-wrap:wrap; }
+
+/* ── Textarea ── */
+.textarea-line {
+  background:transparent; border:none;
+  border-bottom:1px solid #d4d0c8;
+  color:#1a1a1a; padding:8px 0;
+  font-size:14px; font-family:inherit; outline:none;
+  width:100%; transition:border-color 0.2s;
+  resize:none; min-height:72px; line-height:1.6;
+  display:block;
+}
+.textarea-line::placeholder { color:#b8b4ac; }
+.textarea-line:focus { border-bottom-color:#1a1a1a; }
+
+/* ── Select ── */
+.select-line {
+  background:transparent; border:none;
+  border-bottom:1px solid #d4d0c8;
+  color:#1a1a1a; padding:8px 0;
+  font-size:14px; font-family:inherit; outline:none;
+  width:100%; transition:border-color 0.2s;
+  appearance:none; cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23b8b4ac' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 2px center;
+}
+.select-line:focus { border-bottom-color:#1a1a1a; outline:none; }
+
+/* ── Number input ── */
+.input-num {
+  text-align:right; width:80px;
+}
+.input-num::-webkit-inner-spin-button,
+.input-num::-webkit-outer-spin-button { opacity:0.4; }
+
+/* ── Upload area ── */
+.upload-area {
+  border:1px dashed #d4d0c8; padding:20px;
+  text-align:center; cursor:pointer;
+  font-size:10px; font-weight:700; letter-spacing:0.10em;
+  text-transform:uppercase; color:#b8b4ac;
+  transition:border-color 0.2s, color 0.2s;
+  background:transparent;
+  max-width:260px;
+}
+.upload-area:hover { border-color:#b0ac9f; color:#6e6a62; }
+
+/* ── Hint text ── */
+.hint { font-size:10px; color:#b8b4ac; letter-spacing:0.04em; margin-top:5px; }
+</style>
+</head><body>
+
+<div class="meta">Underline inputs — stile delicato</div>
+<div class="form-row">
+  <div class="field" style="flex:1;min-width:160px;">
+    <div class="field-label">Titolo libro</div>
+    <input class="input-line" placeholder="es. Atomic Habits">
+    <div class="field-underline"></div>
+  </div>
+  <div class="field" style="flex:1;min-width:120px;">
+    <div class="field-label">Autore</div>
+    <input class="input-line" placeholder="es. James Clear">
+    <div class="field-underline"></div>
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="field" style="flex:1;min-width:120px;">
+    <div class="field-label">Categoria</div>
+    <select class="input-line select-line">
+      <option value="">Seleziona...</option>
+      <option>Food</option>
+      <option>Trips</option>
+      <option>Knowledge</option>
+      <option>Freelance</option>
+      <option>Investimenti</option>
+    </select>
+    <div class="field-underline"></div>
+  </div>
+  <div class="field" style="width:100px;">
+    <div class="field-label">Importo €</div>
+    <input type="number" class="input-line input-num" placeholder="0">
+    <div class="field-underline"></div>
+  </div>
+  <div class="field" style="width:80px;">
+    <div class="field-label">Ore sonno</div>
+    <div style="display:flex;align-items:baseline;gap:4px;">
+      <input type="number" class="input-line input-num" value="7.5" step="0.5" min="0" max="14" style="width:52px;">
+      <span style="font-size:11px;color:#b8b4ac;padding-bottom:8px;">h</span>
+    </div>
+    <div class="field-underline"></div>
+  </div>
+</div>
+
+<div class="sep"></div>
+<div class="meta">Textarea — journal</div>
+<div class="field" style="max-width:480px;">
+  <div class="field-label">Riflessione del giorno</div>
+  <textarea class="textarea-line" placeholder="Scrivi qualcosa..."></textarea>
+  <div class="field-underline"></div>
+  <div class="hint">0 / 500 caratteri</div>
+</div>
+
+<div class="sep"></div>
+<div class="meta">Upload area</div>
+<div class="upload-area">+ Aggiungi foto</div>
+
+</body></html>

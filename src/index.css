@@ -2,14 +2,202 @@
 
 html { color-scheme: light; }
 
+/* ── DESIGN SYSTEM TOKENS ── */
+:root {
+  /* Backgrounds */
+  --bg:          #f5f3ef;
+  --surface:     #ede9e2;
+
+  /* Borders */
+  --border:      #d4d0c8;
+  --border2:     #b0ac9f;
+
+  /* Text */
+  --text:        #1a1a1a;
+  --text2:       #6e6a62;
+  --text3:       #b8b4ac;
+
+  /* Accent */
+  --accent:      #c8f564;
+  --accent-text: #1a1a1a;
+
+  /* Navigation */
+  --nav-bg:      #1a1a1a;
+  --nav-link:    #555555;
+  --nav-hover:   #ffffff;
+  --nav-active:  #c8f564;
+  --nav-sep:     #2a2a2a;
+
+  /* Hero */
+  --hero-bg:     #2d3a2e;
+  --hero-text:   #ffffff;
+
+  /* Status */
+  --status-green:        #5aaa3a;
+  --status-green-bg:     rgba(90,170,58,0.12);
+  --status-green-text:   #3a7a1a;
+  --status-yellow:       #d4a820;
+  --status-yellow-bg:    rgba(212,168,32,0.12);
+  --status-yellow-text:  #7a5800;
+  --status-red:          #b94040;
+  --status-red-bg:       rgba(185,64,64,0.08);
+  --status-red-text:     #b94040;
+  --score-yellow:        #f0d060;
+
+  /* Data / charts */
+  --chart-blue:   #4a7ab5;
+  --chart-orange: #c87030;
+
+  /* Font stacks */
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  /* Type scale */
+  --text-2xs:  9px;
+  --text-xs:   10px;
+  --text-sm:   11px;
+  --text-base: 13px;
+  --text-md:   14px;
+  --text-lg:   18px;
+  --text-xl:   22px;
+  --text-2xl:  26px;
+  --text-3xl:  28px;
+  --text-4xl:  48px;
+  --text-hero: 64px;
+
+  /* Weights */
+  --weight-normal:   400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-black:    800;
+  --weight-ultra:    900;
+
+  /* Letter spacing */
+  --tracking-tight:   -0.04em;
+  --tracking-snug:    -0.02em;
+  --tracking-normal:   0;
+  --tracking-wide:     0.04em;
+  --tracking-wider:    0.08em;
+  --tracking-widest:   0.10em;
+  --tracking-label:    0.12em;
+  --tracking-nav:      0.18em;
+  --tracking-section:  0.22em;
+
+  /* Spacing */
+  --space-1:    4px;
+  --space-2:    8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-7:   28px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+  --space-20:  80px;
+
+  --section-px:  48px;
+  --card-px:     18px;
+  --card-py:     14px;
+  --page-max:   800px;
+  --nav-item-px: 22px;
+  --nav-item-py: 14px;
+
+  /* Border radius / widths */
+  --radius:         0;
+  --border-width:   1px;
+  --border-status:  3px;
+
+  /* Progress bars */
+  --progress-h:        2px;
+  --progress-h-thick:  3px;
+}
+
 body {
-  background: #f5f3ef;
-  color: #1a1a1a;
-  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── GLOBAL GRAIN — fixed overlay, multiply su sfondo chiaro ── */
+/* ── TYPOGRAPHY UTILITIES ── */
+.t-label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text2);
+  line-height: 1.2;
+}
+.t-nav {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-nav);
+  text-transform: uppercase;
+}
+.t-section {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-section);
+  text-transform: uppercase;
+  color: var(--text2);
+}
+.t-hero {
+  font-size: var(--text-hero);
+  font-weight: var(--weight-ultra);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--hero-text);
+  line-height: 0.95;
+}
+.t-stat-big {
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1;
+  color: var(--text);
+}
+.t-stat-mid {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-snug);
+  line-height: 1;
+  color: var(--text);
+}
+.t-greeting {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-snug);
+  line-height: 1.1;
+  color: var(--hero-text);
+}
+.t-body {
+  font-size: var(--text-md);
+  font-weight: var(--weight-normal);
+  color: var(--text2);
+  line-height: 1.55;
+}
+.t-body-sm {
+  font-size: var(--text-base);
+  font-weight: var(--weight-normal);
+  color: var(--text2);
+  line-height: 1.55;
+}
+.t-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.7;
+}
+.t-hint {
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.3);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ── GLOBAL GRAIN ── */
 .global-grain {
   position: fixed;
   inset: 0;
@@ -22,26 +210,27 @@ body {
   background-size: 200px 200px;
 }
 
-/* ── NAV — dark con lime sull'attivo ── */
+/* ── NAV ── */
 nav {
   display: flex;
-  background: #1a1a1a;
+  background: var(--nav-bg);
   border-bottom: none;
+  flex-wrap: wrap;
 }
 
 nav a {
   text-decoration: none;
-  color: #555555;
-  padding: 14px 22px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
+  color: var(--nav-link);
+  padding: var(--nav-item-py) var(--nav-item-px);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-nav);
   text-transform: uppercase;
-  border-right: 1px solid #2a2a2a;
+  border-right: 1px solid var(--nav-sep);
   transition: color 0.12s;
 }
 
-nav a:hover  { color: #ffffff; }
-nav a.active { color: #c8f564; }
+nav a:hover  { color: var(--nav-hover); }
+nav a.active { color: var(--nav-active); }
 
 main { padding: 0; }

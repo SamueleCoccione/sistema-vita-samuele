@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f5f3ef; font-family: system-ui,-apple-system,sans-serif; padding: 20px; }
+.row { display:flex; gap:0; }
+.swatch { flex:1; height:80px; position:relative; }
+.swatch-label {
+  position:absolute; bottom:8px; left:10px; right:10px;
+  font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+}
+.swatch-hex {
+  position:absolute; top:8px; left:10px;
+  font-size:9px; font-weight:600; letter-spacing:0.04em; opacity:0.7;
+}
+.dark .swatch-label, .dark .swatch-hex { color:#fff; }
+.sep { height:1px; background:#d4d0c8; margin:12px 0; }
+.row2 { display:flex; gap:8px; flex-wrap:wrap; }
+.chip { padding:10px 14px; border:1px solid #d4d0c8; }
+.chip-label { font-size:9px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:#6e6a62; margin-bottom:4px; }
+.chip-val { font-size:11px; font-weight:600; color:#1a1a1a; }
+</style>
+</head><body>
+<div class="row">
+  <div class="swatch" style="background:#f5f3ef">
+    <span class="swatch-hex">#f5f3ef</span>
+    <span class="swatch-label" style="color:#6e6a62">--bg</span>
+  </div>
+  <div class="swatch" style="background:#ede9e2">
+    <span class="swatch-hex">#ede9e2</span>
+    <span class="swatch-label" style="color:#6e6a62">--surface</span>
+  </div>
+  <div class="swatch" style="background:#d4d0c8">
+    <span class="swatch-hex">#d4d0c8</span>
+    <span class="swatch-label" style="color:#6e6a62">--border</span>
+  </div>
+  <div class="swatch" style="background:#b0ac9f">
+    <span class="swatch-hex">#b0ac9f</span>
+    <span class="swatch-label" style="color:#fff">--border2</span>
+  </div>
+  <div class="swatch dark" style="background:#6e6a62">
+    <span class="swatch-hex">#6e6a62</span>
+    <span class="swatch-label">--text2</span>
+  </div>
+  <div class="swatch dark" style="background:#1a1a1a">
+    <span class="swatch-hex">#1a1a1a</span>
+    <span class="swatch-label">--text</span>
+  </div>
+</div>
+<div class="sep"></div>
+<div class="row">
+  <div class="swatch" style="background:#c8f564">
+    <span class="swatch-hex">#c8f564</span>
+    <span class="swatch-label" style="color:#1a1a1a">--accent</span>
+  </div>
+  <div class="swatch dark" style="background:#2d3a2e">
+    <span class="swatch-hex">#2d3a2e</span>
+    <span class="swatch-label">--hero-bg</span>
+  </div>
+  <div class="swatch dark" style="background:#1a1a1a">
+    <span class="swatch-hex">#1a1a1a</span>
+    <span class="swatch-label">--nav-bg</span>
+  </div>
+  <div class="swatch" style="background:#4a7ab5">
+    <span class="swatch-hex">#4a7ab5</span>
+    <span class="swatch-label" style="color:#fff">chart-blue</span>
+  </div>
+  <div class="swatch" style="background:#c87030">
+    <span class="swatch-hex">#c87030</span>
+    <span class="swatch-label" style="color:#fff">chart-orange</span>
+  </div>
+</div>
+</body></html>
