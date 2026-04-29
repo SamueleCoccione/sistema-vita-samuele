@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true,
     proxy: {
       // Proxy per Strava API — evita CORS in dev
       '/strava-proxy': {

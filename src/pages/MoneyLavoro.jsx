@@ -1,5 +1,6 @@
 import './MoneyLavoro.css';
 import PageHero from '../components/PageHero';
+import ObjectiveStatus from '../components/ObjectiveStatus';
 import Patrimonio        from '../components/money-lavoro/Patrimonio';
 import Transazioni       from '../components/money-lavoro/Transazioni';
 import CRMClienti        from '../components/money-lavoro/CRMClienti';
@@ -43,6 +44,18 @@ export default function MoneyLavoro() {
   return (
     <div className="cm-page">
       <PageHero title="Money & Lavoro" />
+
+      <div className="cm-section">
+        <div className="cm-section-head">
+          <span className="cm-section-title">Stato Obiettivo</span>
+        </div>
+        <div className="cm-section-body">
+          <ObjectiveStatus
+            tabKey="ml_obj_status"
+            placeholder="Come ti senti sul lavoro e sui soldi oggi?"
+          />
+        </div>
+      </div>
 
       {SECTIONS.map(({ id, title, Component }) => (
         <div key={id} className="cm-section">

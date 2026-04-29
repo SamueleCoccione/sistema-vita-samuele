@@ -1,5 +1,6 @@
 import './Relazioni.css';
 import PageHero        from '../components/PageHero';
+import ObjectiveStatus from '../components/ObjectiveStatus';
 import CuraPersonale   from '../components/relazioni/CuraPersonale';
 import CuraCasa        from '../components/relazioni/CuraCasa';
 import Compagna        from '../components/relazioni/Compagna';
@@ -45,6 +46,18 @@ export default function Relazioni() {
   return (
     <div className="cm-page">
       <PageHero title="Relazioni" />
+
+      <div className="cm-section">
+        <div className="cm-section-head">
+          <span className="cm-section-title">Stato Obiettivo</span>
+        </div>
+        <div className="cm-section-body">
+          <ObjectiveStatus
+            tabKey="rel_obj_status"
+            placeholder="Come stai nelle relazioni che contano?"
+          />
+        </div>
+      </div>
 
       {SECTIONS.map(({ id, title, Component }) => (
         <div key={id} className="cm-section">

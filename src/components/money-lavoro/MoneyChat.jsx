@@ -14,24 +14,25 @@ Non essere prolisso. Vai dritto al punto.`;
 
 export default function MoneyChat() {
   const [apiKey,    setApiKey]   = useFirebaseState(APIKEY_KEY, '');
-  const [messages,  setMessages] = useFirebaseState(HISTORY_KEY, []);
+  const [messages,  setMessages, messagesLoaded] = useFirebaseState(HISTORY_KEY, []);
   const [keyDraft,     setKeyDraft]     = useState('');
   const [showKeyInput, setShowKeyInput] = useState(true);
   const [input, setInput] = useState('');
   const [busy,  setBusy]  = useState(false);
   const bottomRef  = useRef(null);
-  const prevLenRef = useRef(messages.length);
+  const prevLenRef = useRef(Infinity);
 
   useEffect(() => {
     setShowKeyInput(!apiKey);
   }, [apiKey]);
 
   useEffect(() => {
+    if (!messagesLoaded) return;
     if (messages.length > prevLenRef.current) {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
     prevLenRef.current = messages.length;
-  }, [messages]);
+  }, [messages, messagesLoaded]);
 
   const saveKey = () => {
     const k = keyDraft.trim();

@@ -1,5 +1,6 @@
 import './Liberta.css';
-import RemoteHeader from '../components/liberta/RemoteHeader';
+import RemoteHeader    from '../components/liberta/RemoteHeader';
+import ObjectiveStatus from '../components/ObjectiveStatus';
 import DoveHoLavorato from '../components/liberta/DoveHoLavorato';
 import SkillRemote from '../components/liberta/SkillRemote';
 import PipelineRemote from '../components/liberta/PipelineRemote';
@@ -24,6 +25,18 @@ export default function Liberta() {
       <RemoteHeader />
 
       <div className="lb-sections">
+        <section className="cm-section lb-section">
+          <div className="cm-section-head">
+            <div className="cm-section-title">Stato Obiettivo</div>
+          </div>
+          <div className="cm-section-body">
+            <ObjectiveStatus
+              tabKey="lib_obj_status"
+              placeholder="Quanto ti senti libero oggi?"
+            />
+          </div>
+        </section>
+
         {SECTIONS.map(({ id, title, component: Comp }) => (
           <section key={id} className="cm-section lb-section">
             <div className="cm-section-head">

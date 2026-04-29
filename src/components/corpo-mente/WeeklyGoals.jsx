@@ -8,21 +8,18 @@ const STRAVA_KEY = 'sv_strava_activities';
 function getMondayStr() {
   const d = new Date();
   const day = d.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
   const mon = new Date(d);
-  mon.setDate(d.getDate() + diff);
+  mon.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
   return mon.toISOString().split('T')[0];
 }
 
 function getSundayStr() {
   const d = new Date();
   const day = d.getDay();
-  const diff = day === 0 ? 0 : 7 - day;
   const sun = new Date(d);
-  sun.setDate(d.getDate() + diff);
+  sun.setDate(d.getDate() + (day === 0 ? 0 : 7 - day));
   return sun.toISOString().split('T')[0];
 }
-
 
 function GoalProgress({ goal, ruckingCount }) {
   const count  = goal.type === 'rucking' ? ruckingCount : (goal.current || 0);
@@ -45,16 +42,16 @@ export default function WeeklyGoals() {
   const [goals,      setGoals,   goalsLoaded] = useFirebaseState(KEY, []);
   const [storedWeek, setStoredWeek, weekLoaded] = useFirebaseState(WEEK_KEY, '');
   const [stravaActs] = useFirebaseState(STRAVA_KEY, []);
-  const [draft, setDraft] = useState('');
-  const [draftType, setDraftType] = useState('binary');
+  const [draft,       setDraft]       = useState('');
+  const [draftType,   setDraftType]   = useState('binary');
   const [draftTarget, setDraftTarget] = useState('');
-  const [draftUnit, setDraftUnit] = useState('');
+  const [draftUnit,   setDraftUnit]   = useState('');
 
   const mon = getMondayStr();
   const sun = getSundayStr();
   const ruckingCount = stravaActs.filter(a => a.date >= mon && a.date <= sun).length;
 
-  // Reset goals at week boundary once data is loaded
+  /* Reset weekly goals at week boundary */
   useEffect(() => {
     if (!goalsLoaded || !weekLoaded) return;
     const currentWeek = getMondayStr();
@@ -68,6 +65,16 @@ export default function WeeklyGoals() {
       setStoredWeek(currentWeek);
     }
   }, [goalsLoaded, weekLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* Migrate old food goal text */
+  useEffect(() => {
+    if (!goalsLoaded) return;
+    const OLD = 'Non mangiare merda per una settimana';
+    const NEW = 'Ho scelto consapevolmente cosa mangiare questa settimana';
+    if (goals.some(g => g.text === OLD)) {
+      setGoals(goals.map(g => g.text === OLD ? { ...g, text: NEW } : g));
+    }
+  }, [goalsLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const save = (next) => {
     setGoals(next);

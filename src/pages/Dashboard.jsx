@@ -1,7 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import './Dashboard.css';
 import { useFirebaseState } from '../hooks/useFirebaseState';
+import { scoreColor } from '../components/ObjectiveStatus';
+import '../components/ObjectiveStatus.css';
 import { migrationDone, migrateFromLocalStorage } from '../utils/migrateLocalStorage';
+import { importJsonToFirebase } from '../utils/importFromJson';
 
 const KEY = 'dash_daily_v2';
 
@@ -32,17 +35,13 @@ const RELAZIONI_CHECKS = [
   { k: 'tribu',     label: 'Follow-up con qualcuno della tribù' },
 ];
 
-const LIBERTA_CHECKS = [
-  { k: 'tempo_me',    label: 'Almeno 30 min solo per me'            },
-  { k: 'no_scroll',   label: 'Ho evitato scroll passivo > 30 min'   },
-  { k: 'progetto',    label: 'Ho lavorato su un progetto personale'  },
-  { k: 'aria_aperta', label: 'Sono uscito o respirato aria aperta'   },
-];
-
-const TOTAL_CHECKS = CORPO_CHECKS.length + MONEY_CHECKS.length + RELAZIONI_CHECKS.length + LIBERTA_CHECKS.length;
+const TOTAL_CHECKS = CORPO_CHECKS.length + MONEY_CHECKS.length + RELAZIONI_CHECKS.length;
 
 /* ── Helpers ────────────────────────────────────────────────────── */
-function today() { return new Date().toISOString().split('T')[0]; }
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
 function greeting() {
   const h = new Date().getHours();
@@ -67,8 +66,7 @@ function globalScore(entry) {
   const done =
     sectionDone(entry.corpo,     CORPO_CHECKS)     +
     sectionDone(entry.money,     MONEY_CHECKS)     +
-    sectionDone(entry.relazioni, RELAZIONI_CHECKS) +
-    sectionDone(entry.liberta,   LIBERTA_CHECKS);
+    sectionDone(entry.relazioni, RELAZIONI_CHECKS);
   return Math.round((done / TOTAL_CHECKS) * 100) / 10;
 }
 
@@ -171,6 +169,10 @@ export default function Dashboard() {
   const [showMigration, setShowMigration] = useState(!migrationDone());
   const [migrating,     setMigrating]     = useState(false);
   const [migrLog,       setMigrLog]       = useState('');
+  const [importing,     setImporting]     = useState(false);
+  const [importLog,     setImportLog]     = useState('');
+  const [showImport,    setShowImport]    = useState(false);
+  const fileInputRef = useRef(null);
 
   const runMigration = async () => {
     setMigrating(true);
@@ -187,15 +189,46 @@ export default function Dashboard() {
     }
   };
 
+  const handleFileImport = async e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    setImportLog('Lettura file…');
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      const res  = await importJsonToFirebase(json, (key, done, total) =>
+        setImportLog(`${done}/${total} — ${key}`)
+      );
+      setImportLog(`✓ Importate ${res.imported} chiavi su Firebase`);
+      setShowMigration(false);
+      setTimeout(() => setShowImport(false), 3000);
+    } catch (err) {
+      setImportLog(`Errore: ${err.message}`);
+    } finally {
+      setImporting(false);
+      e.target.value = '';
+    }
+  };
+
   const [allEntries, setAllEntries, allLoaded] = useFirebaseState(KEY, []);
-  const td = today();
+  const [td, setTd] = useState(today);
   const [entry, setEntry] = useState({ ...EMPTY });
+
+  /* Reset automatico a mezzanotte */
+  useEffect(() => {
+    const now  = new Date();
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const t = setTimeout(() => setTd(today()), next - now + 200);
+    return () => clearTimeout(t);
+  }, [td]);
 
   useEffect(() => {
     if (!allLoaded) return;
     const storedToday = allEntries.find(e => e.date === td);
     if (storedToday) setEntry({ ...EMPTY, ...storedToday });
-  }, [allLoaded]);
+    else setEntry({ ...EMPTY, date: td });
+  }, [allLoaded, td]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const persist = (next) => {
     setEntry(next);
@@ -231,25 +264,61 @@ export default function Dashboard() {
   const corpoDone     = sectionDone(entry.corpo,     CORPO_CHECKS);
   const moneyDone     = sectionDone(entry.money,     MONEY_CHECKS);
   const relazioniDone = sectionDone(entry.relazioni, RELAZIONI_CHECKS);
-  const libertaDone   = sectionDone(entry.liberta,   LIBERTA_CHECKS);
 
   return (
     <div className="db-page">
 
-      {/* ── MIGRATION BANNER (one-time) */}
-      {showMigration && (
+      {/* ── IMPORT FROM JSON */}
+      {showImport && (
         <div style={{
           background: 'var(--surface)', border: '1px solid var(--border)',
           padding: '12px 16px', marginBottom: 20,
           display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
         }}>
           <span style={{ fontSize: 12, color: 'var(--text2)', flex: 1 }}>
-            {migrLog || 'Dati esistenti in localStorage trovati — migra su Firebase per sincronizzarli su tutti i dispositivi.'}
+            {importLog || 'Seleziona il file sistema-vita-backup.json per importare tutto lo storico su Firebase.'}
+          </span>
+          {!importing && !importLog.startsWith('✓') && (
+            <>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                style={{ display: 'none' }}
+                onChange={handleFileImport}
+              />
+              <button className="cm-btn" style={{ fontSize: 12 }} onClick={() => fileInputRef.current?.click()}>
+                Seleziona file JSON
+              </button>
+            </>
+          )}
+          {!importing && (
+            <button className="cm-btn cm-btn-ghost" style={{ fontSize: 11 }} onClick={() => setShowImport(false)}>
+              Chiudi
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* ── MIGRATION BANNER (one-time) */}
+      {showMigration && !showImport && (
+        <div style={{
+          background: 'var(--surface)', border: '1px solid var(--border)',
+          padding: '12px 16px', marginBottom: 20,
+          display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+        }}>
+          <span style={{ fontSize: 12, color: 'var(--text2)', flex: 1 }}>
+            {migrLog || 'Importa storico da file JSON o migra i dati localStorage su Firebase.'}
           </span>
           {!migrating && !migrLog.startsWith('✓') && (
-            <button className="cm-btn" style={{ fontSize: 12 }} onClick={runMigration}>
-              Migra dati da localStorage
-            </button>
+            <>
+              <button className="cm-btn" style={{ fontSize: 12 }} onClick={() => setShowImport(true)}>
+                Importa da file JSON
+              </button>
+              <button className="cm-btn cm-btn-ghost" style={{ fontSize: 12 }} onClick={runMigration}>
+                Migra da localStorage
+              </button>
+            </>
           )}
           {!migrating && (
             <button className="cm-btn cm-btn-ghost" style={{ fontSize: 11 }} onClick={() => {
@@ -289,6 +358,9 @@ export default function Dashboard() {
           <span className="db-streak-hint">giorni consecutivi con score ≥ 6/10</span>
         </div>
       </div>
+
+      {/* ── STATO OBIETTIVI */}
+      <ObjStatusPanel />
 
       {/* ── SEZIONE 1 — CORPO & MENTE */}
       <Section
@@ -374,23 +446,6 @@ export default function Dashboard() {
         ))}
       </Section>
 
-      {/* ── SEZIONE 4 — LIBERTÀ */}
-      <Section
-        title="Libertà"
-        done={libertaDone}
-        total={LIBERTA_CHECKS.length}
-        status={sectionStatus(libertaDone, 4, 4, 2)}
-      >
-        {LIBERTA_CHECKS.map(c => (
-          <Check
-            key={c.k}
-            label={c.label}
-            checked={!!entry.liberta?.[c.k]}
-            onClick={() => toggle('liberta', c.k)}
-          />
-        ))}
-      </Section>
-
       <StatsPanel entries={allWithToday} />
       <HistoryPanel entries={allWithToday} />
 
@@ -409,7 +464,6 @@ function StatsPanel({ entries }) {
     { label: 'Corpo & Mente',   pct: areaAvg(CORPO_CHECKS,     'corpo'),     color: 'var(--chart-blue)'   },
     { label: 'Money & Lavoro',  pct: areaAvg(MONEY_CHECKS,     'money'),     color: 'var(--score-yellow)' },
     { label: 'Relazioni',       pct: areaAvg(RELAZIONI_CHECKS, 'relazioni'), color: '#c8a0e0'              },
-    { label: 'Libertà',         pct: areaAvg(LIBERTA_CHECKS,   'liberta'),   color: 'var(--chart-orange)' },
   ];
   return (
     <div className="db-stats-panel">
@@ -478,7 +532,6 @@ function HistoryPanel({ entries }) {
                       { pct: sectionDone(e.corpo,     CORPO_CHECKS)     / CORPO_CHECKS.length,     color: 'var(--chart-blue)'   },
                       { pct: sectionDone(e.money,     MONEY_CHECKS)     / MONEY_CHECKS.length,     color: 'var(--score-yellow)' },
                       { pct: sectionDone(e.relazioni, RELAZIONI_CHECKS) / RELAZIONI_CHECKS.length, color: '#c8a0e0'              },
-                      { pct: sectionDone(e.liberta,   LIBERTA_CHECKS)   / LIBERTA_CHECKS.length,   color: 'var(--chart-orange)' },
                     ];
                     return (
                       <div key={e.date} className={`db-hist-day${isDayOpen ? ' open' : ''}`}>
@@ -502,7 +555,6 @@ function HistoryPanel({ entries }) {
                               { section: 'corpo',     checks: CORPO_CHECKS,     label: 'Corpo & Mente'  },
                               { section: 'money',     checks: MONEY_CHECKS,     label: 'Money & Lavoro' },
                               { section: 'relazioni', checks: RELAZIONI_CHECKS, label: 'Relazioni'      },
-                              { section: 'liberta',   checks: LIBERTA_CHECKS,   label: 'Libertà'        },
                             ].map(({ section, checks, label }) => (
                               <div key={section} className="db-hist-area-block">
                                 <div className="db-hist-area-title">{label}</div>
@@ -535,6 +587,45 @@ function HistoryPanel({ entries }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* ── Stato Obiettivi panel ──────────────────────────────────────── */
+const OBJ_TABS = [
+  { key: 'sv_obj_status',  label: 'Corpo & Mente'    },
+  { key: 'ml_obj_status',  label: 'Money & Lavoro'   },
+  { key: 'rel_obj_status', label: 'Relazioni'         },
+  { key: 'lib_obj_status', label: 'Libertà'           },
+  { key: 'pd_obj_status',  label: 'Prog. Digitale'   },
+];
+
+function ObjRow({ tabKey, label }) {
+  const [data] = useFirebaseState(tabKey, null);
+  const score = data?.score ?? null;
+  return (
+    <div className="db-obj-row">
+      <span className="db-obj-label">{label}</span>
+      <div className="db-obj-track">
+        {score !== null && (
+          <div
+            className="db-obj-fill"
+            style={{ width: `${(score / 10) * 100}%`, background: scoreColor(score) }}
+          />
+        )}
+      </div>
+      <span className="db-obj-val" style={{ color: score !== null ? scoreColor(score) : 'var(--text2)' }}>
+        {score ?? '—'}
+      </span>
+    </div>
+  );
+}
+
+function ObjStatusPanel() {
+  return (
+    <div className="db-obj-section">
+      <div className="cm-label" style={{ marginBottom: 14 }}>Stato obiettivi</div>
+      {OBJ_TABS.map(t => <ObjRow key={t.key} tabKey={t.key} label={t.label} />)}
     </div>
   );
 }

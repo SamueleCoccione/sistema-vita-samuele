@@ -771,7 +771,7 @@ function StatsPanel({ films }) {
 // ── FilmTracker ─────────────────────────────────────────────────
 export default function FilmTracker() {
   const [films,  setFilms]  = useFirebaseState(FILMS_KEY, []);
-  const [goal,   setGoal]   = useFirebaseState(GOAL_KEY, 4);
+  const [goal,   setGoal]   = useFirebaseState(GOAL_KEY, 8);
   const [apiKey, setApiKey] = useFirebaseState(OMDB_KEY, '');
   const [apiKeyDraft, setApiKeyDraft] = useState('');
   const [showOmdbSetup, setShowOmdbSetup] = useState(false);

@@ -530,3 +530,48 @@
 .lb-page { min-height: 100vh; }
 .lb-sections { padding: 0 24px 48px; max-width: 1100px; margin: 0 auto; }
 .lb-section { margin-bottom: 0; }
+
+/* ================================================================
+   LIBERTÀ MOBILE
+================================================================ */
+@media (max-width: 768px) {
+  /* Header remoto */
+  .lb-header { padding: 16px 16px 14px; }
+  .lb-header-top { flex-direction: column; gap: 16px; }
+  .lb-kpi-grid { gap: 0; width: 100%; }
+  .lb-kpi { padding-right: 20px; margin-right: 20px; }
+  .lb-kpi-num { font-size: 28px; }
+  .lb-mode-wrap { align-items: flex-start; width: 100%; }
+  .lb-mode-btns { width: 100%; }
+  .lb-mode-btn { flex: 1; padding: 8px 6px; min-height: 44px; }
+  .lb-goal-row { gap: 10px; }
+  .lb-goal-bar { min-width: 60px; }
+
+  /* Sections */
+  .lb-sections { padding: 0 14px 48px; }
+
+  /* Location pins */
+  .lb-timeline { gap: 8px; }
+  .lb-pin { padding: 10px 12px; }
+
+  /* Location form */
+  .lb-loc-form { padding: 14px; }
+  .lb-loc-form-row { flex-direction: column; gap: 10px; }
+  .lb-field { width: 100% !important; }
+
+  /* Skill / Exp forms */
+  .lb-skill-form,
+  .lb-loc-form { padding: 14px; }
+  .lb-study-bar { flex-wrap: wrap; gap: 8px; }
+  .lb-study-today { flex: 1; min-height: 44px; }
+
+  /* XP */
+  .lb-xp-hero { flex-direction: column; gap: 16px; }
+  .lb-xp-btns { flex-direction: column; }
+  .lb-xp-btn { min-height: 48px; }
+
+  /* Platform list */
+  .lb-platform-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .lb-platform-checks { flex-wrap: wrap; gap: 6px; }
+  .lb-pcheck { min-height: 36px; }
+}

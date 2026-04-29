@@ -1,0 +1,254 @@
+/* ================================================================
+   OBJECTIVE STATUS — shared across all 5 tab pages
+================================================================ */
+
+.os-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Bar ── */
+.os-bar-section { margin-bottom: 20px; }
+
+.os-bar-label { margin-bottom: 10px; }
+
+.os-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.os-bar-track {
+  flex: 1;
+  height: 10px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.os-bar-fill {
+  height: 100%;
+  transition: width 0.45s ease, background 0.45s ease;
+}
+
+.os-score-val {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  min-width: 40px;
+  text-align: right;
+  transition: color 0.45s ease;
+}
+
+/* ── Form ── */
+.os-form { display: flex; flex-direction: column; gap: 0; }
+
+.os-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.os-slider-bound {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text2);
+  min-width: 12px;
+  text-align: center;
+}
+
+.os-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.os-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+.os-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+}
+
+.os-slider-current {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  min-width: 30px;
+  text-align: center;
+  transition: color 0.2s;
+}
+
+.os-textarea { margin-bottom: 12px; }
+
+.os-form-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Archive ── */
+.os-archive {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.os-archive-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 14px;
+  gap: 8px;
+}
+
+.os-archive-chev {
+  font-size: 10px;
+  color: var(--text2);
+}
+
+.os-archive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.os-entry {
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.os-entry-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.os-entry-date {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+.os-entry-score {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.os-entry-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.55;
+  padding-top: 6px;
+}
+
+.os-entry-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 9px;
+  color: var(--text2);
+  padding: 2px 4px;
+  line-height: 1;
+}
+.os-entry-toggle:hover { color: var(--text); }
+
+.os-show-more {
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+/* ── Chart ── */
+.os-chart {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.os-chart-label { margin-bottom: 12px; }
+
+/* ================================================================
+   DASHBOARD — STATO OBIETTIVI panel
+================================================================ */
+
+.db-obj-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.db-obj-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 32px;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 0;
+}
+
+.db-obj-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.db-obj-track {
+  height: 6px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.db-obj-fill {
+  height: 100%;
+  transition: width 0.45s ease, background 0.45s ease;
+}
+
+.db-obj-val {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-align: right;
+}
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .db-obj-row {
+    grid-template-columns: 110px 1fr 28px;
+    gap: 10px;
+  }
+}

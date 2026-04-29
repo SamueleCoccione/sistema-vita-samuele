@@ -572,3 +572,53 @@
 .db-hist-qual-fresco  { color: #3a7a1a; }
 .db-hist-qual-normale { color: #7a5800; }
 .db-hist-qual-stanco  { color: #b94040; }
+
+/* ================================================================
+   DASHBOARD MOBILE
+================================================================ */
+@media (max-width: 768px) {
+  .db-page { padding: 16px 14px 80px; }
+
+  /* Header */
+  .db-header { padding: 18px 16px 14px; }
+  .db-greeting { font-size: 20px; }
+  .db-score { font-size: 36px; }
+  .db-streak-row { gap: 10px; padding-top: 12px; }
+  .db-streak-val { font-size: 18px; }
+  .db-streak-hint { display: none; }
+
+  /* Section cards */
+  .db-card-head { padding: 12px 14px 10px; }
+  .db-checks { padding: 4px 8px 8px; gap: 0; }
+
+  /* Check items: min 48px touch target */
+  .db-check {
+    padding: 14px 8px;
+    gap: 12px;
+    min-height: 48px;
+  }
+  .db-check-box { width: 24px; height: 24px; }
+  .db-check-lbl { font-size: 14px; }
+
+  /* Sleep row */
+  .db-sleep-row { padding: 10px 8px 10px 12px; }
+  .db-sleep-input { min-height: 44px; }
+  .db-qual-btn { min-height: 36px; padding: 6px 12px; }
+
+  /* Stats */
+  .db-stats-avg-num { font-size: 30px; }
+  .db-stats-area-lbl { min-width: 90px; font-size: 9px; }
+  .db-stats-head { padding: 12px 14px 10px; }
+  .db-stats-areas { padding: 10px 14px 14px; }
+
+  /* History */
+  .db-hist-day-lbl { min-width: auto; font-size: 10px; }
+  .db-hist-day-head { padding: 10px 4px 10px 12px; gap: 8px; }
+  .db-hist-bars { gap: 2px; }
+  .db-hist-bar-wrap { width: 8px; height: 20px; }
+  .db-hist-day-body {
+    grid-template-columns: 1fr;
+    padding: 12px 12px 14px;
+    gap: 12px;
+  }
+}

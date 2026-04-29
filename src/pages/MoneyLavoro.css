@@ -1022,3 +1022,31 @@
   cursor: pointer;
   margin-top: 4px;
 }
+
+/* ================================================================
+   MONEY & LAVORO MOBILE
+================================================================ */
+@media (max-width: 768px) {
+  .ml-hero { gap: 20px; flex-direction: column; }
+  .ml-stat-strip { gap: 16px 24px; }
+  .ml-stat-big { font-size: 26px; }
+  .ml-stat-mid { font-size: 20px; }
+  .ml-edit-panel { padding: 14px; }
+  .ml-edit-row { flex-wrap: wrap; gap: 8px; }
+  .ml-num-input { width: 100% !important; }
+  .ml-bkd-label { width: 90px; font-size: 10px; }
+
+  /* Slider */
+  .ml-slider-field { max-width: 100% !important; }
+
+  /* CRM */
+  .crm-modal { padding: 16px; margin: 12px; max-height: 85vh; overflow-y: auto; }
+  .crm-form-grid { grid-template-columns: 1fr !important; }
+  .crm-fu-alert { flex-wrap: wrap; gap: 8px; }
+
+  /* Chart */
+  .ml-chart-wrap { margin-top: 16px; }
+
+  /* Chat title */
+  .ml-chat-title { font-size: 13px; }
+}

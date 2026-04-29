@@ -234,3 +234,136 @@ nav a:hover  { color: var(--nav-hover); }
 nav a.active { color: var(--nav-active); }
 
 main { padding: 0; }
+
+/* ── MOBILE NAV ELEMENTS (hidden on desktop) ── */
+.nav-mobile-bar  { display: none; }
+.nav-bottom      { display: none; }
+
+/* ── DESKTOP NAV: logout button ── */
+.nav-logout-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--nav-link);
+  font-size: var(--text-xs);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-nav);
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: var(--nav-item-py) var(--nav-item-px);
+  transition: color 0.12s;
+}
+.nav-logout-btn:hover { color: var(--nav-hover); }
+
+/* ================================================================
+   MOBILE — max-width: 768px
+================================================================ */
+@media (max-width: 768px) {
+
+  /* ── NAV: hide desktop, show mobile ── */
+  nav.nav-desktop { display: none; }
+
+  .nav-mobile-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--nav-bg);
+    padding: 0 16px;
+    height: 48px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-mobile-title {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--nav-active);
+  }
+  .nav-mobile-logout {
+    background: none;
+    border: none;
+    color: var(--nav-link);
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-mobile-logout svg { width: 18px; height: 18px; }
+  .nav-mobile-logout:hover { color: var(--nav-hover); }
+
+  nav.nav-bottom {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--nav-bg);
+    border-top: 1px solid var(--nav-sep);
+    z-index: 100;
+    flex-wrap: nowrap;
+  }
+  .nav-bottom-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    text-decoration: none;
+    color: var(--nav-link);
+    padding: 6px 2px 8px;
+    transition: color 0.12s;
+    min-width: 0;
+  }
+  .nav-bottom-item.active { color: var(--nav-active); }
+  .nav-bottom-icon { display: flex; align-items: center; justify-content: center; }
+  .nav-bottom-icon svg { width: 20px; height: 20px; }
+  .nav-bottom-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  /* ── MAIN: leave room for bottom nav ── */
+  main { padding-bottom: 68px; }
+
+  /* ── GLOBAL INPUT / BUTTON TOUCH TARGETS ── */
+  .cm-input  { min-height: 44px; font-size: 16px; /* prevents iOS zoom */ }
+  .cm-btn    { min-height: 44px; padding: 10px 16px; }
+  .cm-icon-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── SECTION PADDING ── */
+  .cm-section-head { padding: 14px 16px; }
+  .cm-section-body { padding: 20px 16px; }
+
+  /* ── CHAT ── */
+  .cm-chat-head    { padding: 14px 16px; }
+  .cm-chat-msgs    { padding: 16px; height: 300px; }
+  .cm-chat-bottom  { padding: 10px 16px; }
+  .cm-key-setup    { padding: 16px; }
+  .cm-download-bar { padding: 16px; }
+
+  /* ── STAT STRIP ── */
+  .cm-stat-strip { gap: 20px; flex-wrap: wrap; }
+  .ml-stat-strip { gap: 20px; }
+
+  /* ── FILTER TABS ── */
+  .cm-filter-tabs { flex-wrap: wrap; }
+  .cm-tab { flex: 1; text-align: center; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+}
