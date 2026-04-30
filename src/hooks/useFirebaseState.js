@@ -20,8 +20,24 @@ export function useFirebaseState(key, defaultValue) {
     const unsub = onValue(r, (snap) => {
       const raw = snap.val();
       if (raw !== null && raw !== undefined) {
-        try { setState(JSON.parse(raw)); } catch { setState(defaultValue); }
+        try {
+          const parsed = JSON.parse(raw);
+          // eslint-disable-next-line no-console
+          console.log(`[Firebase ✓] ${key}:`, parsed);
+          setState(parsed);
+        } catch {
+          // eslint-disable-next-line no-console
+          console.warn(`[Firebase parse error] ${key}:`, raw);
+          setState(defaultValue);
+        }
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn(`[Firebase vuoto] ${key} — nessun dato nel db (o non autenticato)`);
       }
+      setLoaded(true);
+    }, (error) => {
+      // eslint-disable-next-line no-console
+      console.error(`[Firebase errore] ${key}:`, error.message);
       setLoaded(true);
     });
     return unsub;

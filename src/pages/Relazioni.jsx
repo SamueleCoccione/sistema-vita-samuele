@@ -7,6 +7,7 @@ import Compagna        from '../components/relazioni/Compagna';
 import FamigliaAffetti from '../components/relazioni/FamigliaAffetti';
 import TribuNetworking from '../components/relazioni/TribuNetworking';
 import EnergiaSociale  from '../components/relazioni/EnergiaSociale';
+import { useFirebaseState } from '../hooks/useFirebaseState';
 
 const SECTIONS = [
   { id: 'cura-personale', title: 'Cura Personale',     Component: CuraPersonale   },
@@ -17,32 +18,42 @@ const SECTIONS = [
   { id: 'energia',        title: 'Energia Sociale',    Component: EnergiaSociale  },
 ];
 
-function downloadTabData() {
-  const safe = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
-  const data = {
-    exported_at: new Date().toISOString(),
-    tab: 'Relazioni',
-    sections: {
-      cura_personale:  safe('rel_cura_personale'),
-      cura_casa:       safe('rel_cura_casa'),
-      compagna_daily:  safe('rel_compagna_daily'),
-      compagna_note:   safe('rel_compagna_note'),
-      famiglia:        safe('rel_famiglia'),
-      tribu_persone:   safe('rel_tribu_persone'),
-      tribu_eventi:    safe('rel_tribu_eventi'),
-      energia_sociale: safe('rel_energia'),
-    },
-  };
+function triggerDownload(data, filename) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
-  Object.assign(document.createElement('a'), {
-    href: url,
-    download: `relazioni-${new Date().toISOString().split('T')[0]}.json`,
-  }).click();
+  Object.assign(document.createElement('a'), { href: url, download: filename }).click();
   URL.revokeObjectURL(url);
 }
 
 export default function Relazioni() {
+  const [curaPersonale]  = useFirebaseState('rel_cura_personale',  []);
+  const [curaCasa]       = useFirebaseState('rel_cura_casa',       []);
+  const [compagnaDaily]  = useFirebaseState('rel_compagna_daily',  []);
+  const [compagnaNotes]  = useFirebaseState('rel_compagna_note',   []);
+  const [famiglia]       = useFirebaseState('rel_famiglia',        []);
+  const [tribuPersone]   = useFirebaseState('rel_tribu_persone',   []);
+  const [tribuEventi]    = useFirebaseState('rel_tribu_eventi',    []);
+  const [energia]        = useFirebaseState('rel_energia',         {});
+  const [objStatus]      = useFirebaseState('rel_obj_status',      {});
+
+  const downloadTabData = () => {
+    triggerDownload({
+      exported_at: new Date().toISOString(),
+      tab: 'Relazioni',
+      sections: {
+        stato_obiettivo:  objStatus,
+        cura_personale:   curaPersonale,
+        cura_casa:        curaCasa,
+        compagna_daily:   compagnaDaily,
+        compagna_note:    compagnaNotes,
+        famiglia:         famiglia,
+        tribu_persone:    tribuPersone,
+        tribu_eventi:     tribuEventi,
+        energia_sociale:  energia,
+      },
+    }, `relazioni-${new Date().toISOString().split('T')[0]}.json`);
+  };
+
   return (
     <div className="cm-page">
       <PageHero title="Relazioni" />
