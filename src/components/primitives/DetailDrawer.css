@@ -1,0 +1,190 @@
+/* ── Overlay ── */
+.dd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(26, 15, 30, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: dd-overlay-in 220ms ease;
+}
+@keyframes dd-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Panel — centrato, max 720px ── */
+.dd-panel {
+  position: relative;
+  width: min(720px, 100%);
+  height: min(92vh, 900px);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface, #F5EDDD);
+  border-radius: var(--radius-md, 24px);
+  box-shadow: 0 32px 80px rgba(26, 15, 30, 0.40), 0 0 0 1px rgba(255,255,255,0.06);
+  animation: dd-panel-in 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+}
+@keyframes dd-panel-in {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+/* ── Header sticky ── */
+.dd-header {
+  flex-shrink: 0;
+  background: #231820;
+  border-bottom: 1px solid rgba(245, 237, 221, 0.07);
+}
+
+.dd-header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px 0;
+}
+
+.dd-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(245, 237, 221, 0.08);
+  border: none;
+  color: rgba(245, 237, 221, 0.6);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 150ms, color 150ms;
+}
+.dd-close:hover {
+  background: rgba(245, 237, 221, 0.16);
+  color: rgba(245, 237, 221, 0.95);
+}
+
+.dd-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245, 237, 221, 0.35);
+}
+
+.dd-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #F5EDDD;
+  line-height: 1.1;
+  padding: 8px 20px 16px;
+  margin: 0;
+}
+
+/* ── Stats hero row ── */
+.dd-stats {
+  display: flex;
+  gap: 0;
+  border-top: 1px solid rgba(245, 237, 221, 0.07);
+}
+
+.dd-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 20px;
+  border-right: 1px solid rgba(245, 237, 221, 0.07);
+  flex: 1;
+}
+.dd-stat:last-child { border-right: none; }
+
+.dd-stat-val {
+  font-size: 28px;
+  font-weight: 800;
+  color: #F5EDDD;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.dd-stat-unit {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(245, 237, 221, 0.45);
+  margin-left: 3px;
+  letter-spacing: 0;
+}
+.dd-stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(245, 237, 221, 0.35);
+}
+
+/* ── Action bar ── */
+.dd-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid rgba(245, 237, 221, 0.07);
+}
+
+.dd-btn-primary {
+  padding: 8px 20px;
+  background: var(--dd-accent, #2BB3A8);
+  border: none;
+  border-radius: 999px;
+  color: #1a1a1a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 140ms;
+}
+.dd-btn-primary:hover { opacity: 0.85; }
+
+.dd-btn-secondary {
+  padding: 8px 18px;
+  background: transparent;
+  border: 1px solid rgba(245, 237, 221, 0.22);
+  border-radius: 999px;
+  color: rgba(245, 237, 221, 0.55);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 140ms, color 140ms;
+}
+.dd-btn-secondary:hover {
+  border-color: rgba(245, 237, 221, 0.4);
+  color: rgba(245, 237, 221, 0.85);
+}
+
+/* ── Scrollable body ── */
+.dd-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--color-surface, #F5EDDD);
+  font-family: var(--font-ui, 'Inter', system-ui, sans-serif);
+}
+.dd-body::-webkit-scrollbar { width: 4px; }
+.dd-body::-webkit-scrollbar-thumb { background: var(--color-line, #E5D9C2); border-radius: 2px; }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .dd-overlay  { padding: 0; align-items: flex-end; }
+  .dd-panel    { width: 100%; height: 92vh; border-radius: 16px 16px 0 0; }
+  .dd-stat-val { font-size: 22px; }
+  .dd-title    { font-size: 20px; padding: 8px 16px 12px; }
+  .dd-header-top { padding: 12px 16px 0; }
+  .dd-actions  { padding: 10px 16px; }
+  .dd-stat     { padding: 12px 14px; }
+}

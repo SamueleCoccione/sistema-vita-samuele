@@ -829,13 +829,14 @@ export default function FilmTracker() {
   const allGenres    = [...new Set(films.map(f => f.genre).filter(Boolean).map(g => g.split(',')[0].trim()))].sort();
   const allPlatforms = [...new Set(films.map(f => f.platform).filter(Boolean))].sort();
 
-  // Films list (excludes to-watch)
+  // Films list (excludes to-watch) — ordered by watchedDate descending
   const filmList = films
     .filter(f => f.status !== 'to-watch')
     .filter(f => statusFilter === 'all' || f.status === statusFilter)
     .filter(f => !genreFilter  || (f.genre || '').toLowerCase().includes(genreFilter.toLowerCase()))
     .filter(f => !platFilter   || f.platform === platFilter)
-    .filter(f => !ratingFilter || f.rating >= parseInt(ratingFilter, 10));
+    .filter(f => !ratingFilter || f.rating >= parseInt(ratingFilter, 10))
+    .sort((a, b) => (b.watchedDate || '').localeCompare(a.watchedDate || ''));
 
   // Watchlist
   const watchlist = films

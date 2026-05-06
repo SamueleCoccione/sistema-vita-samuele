@@ -1,30 +1,9 @@
 import './CorpoMente.css';
-import PageHero from '../components/PageHero';
-import ObjectiveStatus from '../components/ObjectiveStatus';
-import WeeklyInsights from '../components/corpo-mente/WeeklyInsights';
-import WeeklyGoals from '../components/corpo-mente/WeeklyGoals';
-import ProgressiCorpo from '../components/corpo-mente/ProgressiCorpo';
-import WeightTracker from '../components/corpo-mente/WeightTracker';
-import NutritionTracker from '../components/corpo-mente/NutritionTracker';
-import StravaTracker from '../components/corpo-mente/StravaTracker';
-import BookTracker from '../components/corpo-mente/BookTracker';
-import FilmTracker from '../components/corpo-mente/FilmTracker';
-import ClaudeChat from '../components/corpo-mente/ClaudeChat';
-import DailyJournal from '../components/corpo-mente/DailyJournal';
-import WeeklyAwareness from '../components/corpo-mente/WeeklyAwareness';
+import HeroSection from '../tabs/CorpoMente/HeroSection';
+import BentoGrid   from '../tabs/CorpoMente/BentoGrid';
+import GrainMesh   from '../components/primitives/GrainMesh';
+import { EditModeProvider } from '../contexts/EditModeContext';
 import { useFirebaseState } from '../hooks/useFirebaseState';
-
-const SECTIONS = [
-  { id: 'goals',     title: 'Obiettivi settimana',        Component: WeeklyGoals    },
-  { id: 'progressi', title: 'Progressi Corpo',            Component: ProgressiCorpo },
-  { id: 'weight',    title: 'Peso',                       Component: WeightTracker  },
-  { id: 'nutrition', title: 'Nutrizione',                 Component: NutritionTracker},
-  { id: 'strava',    title: 'Rucking — Strava',           Component: StravaTracker  },
-  { id: 'books',     title: 'Book Tracker',               Component: BookTracker    },
-  { id: 'films',     title: 'Film Tracker',               Component: FilmTracker    },
-  { id: 'journal',   title: 'Daily Journal',              Component: DailyJournal   },
-  { id: 'awareness', title: 'Consapevolezza settimanale', Component: WeeklyAwareness},
-];
 
 function triggerDownload(data, filename) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -48,7 +27,6 @@ export default function CorpoMente() {
   const [filmGoal]         = useFirebaseState('sv_film_goal',          8);
   const [journal]          = useFirebaseState('sv_daily_journal',      []);
   const [awareness]        = useFirebaseState('sv_weekly_awareness',   []);
-  const [chatCm]           = useFirebaseState('sv_chat_cm',            []);
   const [objStatus]        = useFirebaseState('sv_obj_status',         {});
 
   const downloadTabData = () => {
@@ -101,52 +79,21 @@ export default function CorpoMente() {
         obiettivo_film_anno:     filmGoal,
         journal:                 journal,
         consapevolezza:          awareness,
-        chat_claude:             chatCm,
       },
     }, `corpo-mente-${new Date().toISOString().split('T')[0]}.json`);
   };
 
   return (
-    <div className="cm-page">
-      <PageHero title="Corpo & Mente" />
-
-      {/* ── Stato obiettivo ── */}
-      <div className="cm-section">
-        <div className="cm-section-head">
-          <span className="cm-section-title">Stato Obiettivo</span>
-        </div>
-        <div className="cm-section-body">
-          <ObjectiveStatus
-            tabKey="sv_obj_status"
-            placeholder="Come stai nel corpo e nella mente oggi?"
-          />
+    <EditModeProvider>
+      <div className="cm-page cm-page--mesh">
+        <GrainMesh showAccent />
+        <HeroSection />
+        <div className="cm-bento-scrim" aria-hidden="true" />
+        <div className="cm-bento-layer">
+          <GrainMesh variant="muted" />
+          <BentoGrid onExport={downloadTabData} />
         </div>
       </div>
-
-      {/* ── Insight settimana — box espandibile in cima ── */}
-      <WeeklyInsights />
-
-      {SECTIONS.map(({ id, title, Component }) => (
-        <div key={id} className="cm-section">
-          <div className="cm-section-head">
-            <span className="cm-section-title">{title}</span>
-          </div>
-          <div className="cm-section-body">
-            <Component />
-          </div>
-        </div>
-      ))}
-
-      <div className="cm-section">
-        <ClaudeChat />
-      </div>
-
-      <div className="cm-download-bar">
-        <button className="cm-btn cm-btn-ghost" onClick={downloadTabData}>
-          ↓ Esporta dati tab
-        </button>
-        <span className="cm-download-hint">JSON · foto escluse · per analisi con Claude</span>
-      </div>
-    </div>
+    </EditModeProvider>
   );
 }

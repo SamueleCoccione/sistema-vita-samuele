@@ -1,0 +1,50 @@
+:root {
+  /* ── Palette ── */
+  --color-bg-warm:    #B86A3D;
+  --color-bg-deep:    #6B3A6F;
+  --color-bg-accent:  #2A1B2E;
+  --color-surface:    #F5EDDD;
+  --color-surface-alt:#FFF8EA;
+  --color-ink:        #1F1812;
+  --color-ink-muted:  #6B5D52;
+  --color-line:       #E5D9C2;
+  --color-magenta:      #E0428A;
+  --color-teal:         #2BB3A8;
+  --color-flame:        #FF6B35;
+  --color-success:      #4A9B6E;
+  --color-violet:       #9B5CD9;
+  --color-acid:         #D4E04A;
+  --color-ink-on-dark:  #E8DFCF;
+
+  /* ── Spacing (4-base) ── */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* ── Radius ── */
+  --radius-sm: 16px;
+  --radius-md: 24px;
+  --radius-lg: 32px;
+
+  /* ── Domain accent colors ── */
+  --accent-fitness:   var(--color-teal);
+  --accent-nutrition: var(--color-flame);
+  --accent-mind:      var(--color-magenta);
+  --accent-cinema:    #C73E5C;
+  --accent-rest:      #6B5DD3;
+  --accent-goal:      var(--color-success);
+
+  /* ── Shadow ── */
+  --shadow-card:  0 8px 32px rgba(31, 24, 18, 0.08);
+  --shadow-hover: 0 12px 40px rgba(31, 24, 18, 0.12);
+
+  /* ── Typography ── */
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-ui:      'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
+}

@@ -1,0 +1,338 @@
+@import '../../../design/tokens.css';
+
+/* ── Content wrapper ── */
+.dr-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Section ── */
+.dr-section {
+  padding: var(--sp-6) var(--sp-6);
+  border-bottom: 1px solid var(--color-line);
+}
+.dr-section:last-child { border-bottom: none; }
+
+.dr-section-title {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin: 0 0 16px;
+  display: block;
+}
+
+/* ── Bar chart ── */
+.dr-chart-wrap { margin-top: 4px; }
+
+.dr-tooltip {
+  background: var(--color-ink);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dr-tooltip-date {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+.dr-tooltip-val {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-teal);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Heatmap ── */
+.dr-heatmap-wrap {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  overflow-x: auto;
+}
+.dr-heatmap-days {
+  display: grid;
+  grid-template-rows: repeat(7, 13px);
+  gap: 3px;
+  flex-shrink: 0;
+}
+.dr-heatmap-day {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-muted);
+  line-height: 13px;
+  text-align: right;
+}
+.dr-heatmap {
+  display: grid;
+  grid-template-rows: repeat(7, 13px);
+  grid-auto-flow: column;
+  gap: 3px;
+  flex: 1;
+  overflow-x: auto;
+}
+.dr-heatmap-cell {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  transition: opacity 120ms;
+}
+.dr-heatmap-cell:hover { opacity: 0.72; }
+
+.dr-heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.dr-legend-text {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  color: var(--color-ink-muted);
+  letter-spacing: 0.04em;
+}
+.dr-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  color: var(--color-ink-muted);
+  letter-spacing: 0.04em;
+}
+.dr-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* ── Table (collapsible) ── */
+.dr-section--table { padding: 0; }
+
+.dr-table-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-6);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  text-align: left;
+  transition: background 120ms;
+}
+.dr-table-toggle:hover { background: rgba(31, 24, 18, 0.03); }
+.dr-table-toggle .dr-section-title { margin: 0; }
+
+.dr-toggle-chev {
+  font-size: 9px;
+  color: var(--color-ink-muted);
+}
+
+.dr-table-wrap {
+  overflow-x: auto;
+  border-top: 1px solid var(--color-line);
+}
+
+.dr-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.dr-table th {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-line);
+  white-space: nowrap;
+  background: var(--color-surface-alt);
+  position: sticky;
+  top: 0;
+}
+.dr-table th:first-child { padding-left: var(--sp-6); }
+.dr-table th:last-child  { padding-right: var(--sp-6); }
+
+.dr-table td {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--color-ink);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-line);
+  vertical-align: middle;
+}
+.dr-table td:first-child { padding-left: var(--sp-6); }
+.dr-table td:last-child  { padding-right: var(--sp-6); }
+.dr-table tr:last-child td { border-bottom: none; }
+.dr-table tr:nth-child(even) td { background: rgba(31, 24, 18, 0.025); }
+
+.dr-td-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-ink);
+}
+
+/* ────────────────────────────────────────────────────────
+   Override StravaTracker / CorpoMente legacy classes
+   quando renderizzate dentro .dr-content
+──────────────────────────────────────────────────────── */
+
+/* Base font per tutto il contenuto drawer */
+.dr-content,
+.dr-content * {
+  font-family: var(--font-ui);
+}
+
+/* Stat strip — label */
+.dr-content .cm-stat-label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+/* Stat strip — valore grande → Instrument Serif */
+.dr-content .cm-stat-value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  line-height: 1;
+}
+
+/* Label sezione */
+.dr-content .cm-label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-muted);
+}
+
+/* Testi descrittivi */
+.dr-content .sv-desc,
+.dr-content .sv-hint {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--color-ink-muted);
+  line-height: 1.65;
+}
+
+/* Loading / errore */
+.dr-content .sv-loading {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--color-ink-muted);
+  letter-spacing: 0.04em;
+}
+.dr-content .sv-error {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: #c0392b;
+  border-color: rgba(192, 57, 43, 0.3);
+}
+
+/* Codice inline */
+.dr-content .sv-code-inline,
+.dr-content .sv-pre {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--color-surface-alt);
+  border-color: var(--color-line);
+  color: var(--color-ink);
+}
+
+/* Tabella attività */
+.dr-content .cm-table th {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  border-bottom-color: var(--color-line);
+  padding: 10px 14px 10px 0;
+}
+.dr-content .cm-table td {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-ink);
+  border-bottom-color: var(--color-line);
+  padding: 10px 14px 10px 0;
+  font-variant-numeric: tabular-nums;
+}
+.dr-content .cm-table tr:last-child td { border-bottom: none; }
+.dr-content .cm-table tr:nth-child(even) td {
+  background: rgba(31, 24, 18, 0.025);
+}
+
+/* Badge tipo attività */
+.dr-content .sv-type-badge {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  color: var(--color-ink-muted);
+}
+
+/* Bottoni — stile bento */
+.dr-content .cm-btn {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  background: var(--color-teal);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+}
+.dr-content .cm-btn-ghost {
+  background: transparent;
+  color: var(--color-ink-muted);
+  border: 1px solid var(--color-line);
+}
+.dr-content .cm-btn-ghost:hover {
+  border-color: var(--color-ink-muted);
+  color: var(--color-ink);
+}
+
+/* Empty state */
+.dr-content .cm-empty {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--color-ink-muted);
+  letter-spacing: 0.06em;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .dr-section { padding: 18px 16px; }
+  .dr-table-toggle { padding: 16px; }
+  .dr-table th:first-child,
+  .dr-table td:first-child { padding-left: 16px; }
+  .dr-table th:last-child,
+  .dr-table td:last-child  { padding-right: 16px; }
+}

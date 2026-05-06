@@ -12,6 +12,33 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* Mesh variant — sfondo continuo GrainMesh */
+.cm-page--mesh {
+  position: relative;
+  overflow: hidden;
+  background: #2A1B2E; /* base scuro del mesh, visibile prima del JS */
+  color: var(--color-ink);
+}
+
+/* Scrim — sfumatura di transizione tra hero e bento */
+.cm-bento-scrim {
+  height: 32px;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(31, 24, 18, 0.08) 100%
+  );
+  pointer-events: none;
+}
+
+/* Layer bento — contiene GrainMesh muted + BentoGrid */
+.cm-bento-layer {
+  position: relative;
+  z-index: 1;
+}
+
 /* ── SECTION LAYOUT ── */
 .cm-section      { border-bottom: 1px solid var(--border); }
 .cm-section-head {

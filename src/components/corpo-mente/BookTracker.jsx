@@ -1,6 +1,48 @@
 import { useState, useRef } from 'react';
 import { useFirebaseState } from '../../hooks/useFirebaseState';
 
+/* ── Google Books API lookup ── */
+function buildGoogleBooksUrl(title, author, langRestrict) {
+  let q = `intitle:${encodeURIComponent(title)}`;
+  if (author && author.trim()) q += `+inauthor:${encodeURIComponent(author.trim())}`;
+  let url = `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=5`;
+  if (langRestrict) url += `&langRestrict=it`;
+  return url;
+}
+
+function parseGoogleBooksItems(items) {
+  return (items || []).map(item => {
+    const info  = item.volumeInfo || {};
+    const cover = (info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail || '')
+      .replace('http://', 'https://') || null;
+    return {
+      title:      info.title                            || '',
+      author:     (info.authors || []).join(', '),
+      genre:      (info.categories || [])[0]            || '',
+      totalPages: info.pageCount ? String(info.pageCount) : '',
+      cover,
+      publisher:  info.publisher                        || '',
+      year:       info.publishedDate?.slice(0, 4)       || '',
+    };
+  });
+}
+
+async function searchGoogleBooks(title, author) {
+  // First try with langRestrict=it for better Italian results
+  let res  = await fetch(buildGoogleBooksUrl(title, author, true));
+  if (!res.ok) throw new Error('Google Books non disponibile');
+  let json = await res.json();
+
+  // Retry without language restriction if no results
+  if (!json.items || json.items.length === 0) {
+    res  = await fetch(buildGoogleBooksUrl(title, author, false));
+    if (!res.ok) throw new Error('Google Books non disponibile');
+    json = await res.json();
+  }
+
+  return parseGoogleBooksItems(json.items);
+}
+
 const KEY      = 'sv_books_v2';
 const GOAL_KEY = 'sv_book_goal';
 
@@ -196,6 +238,22 @@ function BookItem({ book, expanded, onToggle, onPatch, onRemove, search }) {
               </select>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="cm-label">Inizio</span>
+              <input type="date" className="cm-input"
+                style={{ padding: '3px 8px', fontSize: 12 }}
+                value={book.startDate || ''}
+                onChange={e => onPatch({ startDate: e.target.value })} />
+            </div>
+            {(book.status === 'done' || book.status === 'abandoned') && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="cm-label">Fine</span>
+                <input type="date" className="cm-input"
+                  style={{ padding: '3px 8px', fontSize: 12 }}
+                  value={book.endDate || ''}
+                  onChange={e => onPatch({ endDate: e.target.value })} />
+              </div>
+            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span className="cm-label">Rating</span>
               <StarRow value={book.rating || 0} onChange={v => onPatch({ rating: v })} />
             </div>
@@ -228,6 +286,8 @@ export default function BookTracker() {
   const [form,     setForm]     = useState(EMPTY);
   const [editGoal, setEditGoal] = useState(false);
   const [goalDraft, setGoalDraft] = useState('');
+  const [bookResults, setBookResults] = useState([]);  // Google Books picker
+  const [bookSearching, setBookSearching] = useState(false);
   const coverRef = useRef();
 
   const save = (next) => setBooks(next);
@@ -242,6 +302,34 @@ export default function BookTracker() {
     e.target.value = '';
   };
 
+  const lookupBook = async () => {
+    if (!form.title.trim()) return;
+    setBookSearching(true);
+    setBookResults([]);
+    try {
+      const results = await searchGoogleBooks(form.title, form.author);
+      setBookResults(results.length > 0 ? results : []);
+      if (results.length === 0) setBookResults([{ _empty: true }]);
+    } catch (err) {
+      console.warn('[BookTracker] Google Books error:', err.message);
+      setBookResults([{ _error: true }]);
+    } finally {
+      setBookSearching(false);
+    }
+  };
+
+  const applyBookResult = (b) => {
+    setForm(f => ({
+      ...f,
+      title:      b.title      || f.title,
+      author:     b.author     || f.author,
+      genre:      b.genre      || f.genre,
+      totalPages: b.totalPages || f.totalPages,
+      cover:      b.cover      || f.cover,
+    }));
+    setBookResults([]);
+  };
+
   const addBook = () => {
     if (!form.title.trim()) return;
     try {
@@ -251,7 +339,14 @@ export default function BookTracker() {
     setShowForm(false);
   };
 
-  const patch  = (id, p) => save(books.map(b => b.id === id ? { ...b, ...p } : b));
+  const patch = (id, p) => save(books.map(b => {
+    if (b.id !== id) return b;
+    const merged = { ...b, ...p };
+    const today = new Date().toISOString().split('T')[0];
+    if (p.status === 'done'    && !merged.endDate)   merged.endDate   = today;
+    if (p.status === 'reading' && !merged.startDate) merged.startDate = today;
+    return merged;
+  }));
   const remove = (id)    => save(books.filter(b => b.id !== id));
 
   const saveGoal = () => {
@@ -295,14 +390,81 @@ export default function BookTracker() {
       {/* Add form */}
       {showForm && (
         <div className="cm-book-form">
-          <div className="cm-form-row">
-            <div className="cm-form-group">
+          {/* Titolo + bottone cerca */}
+          <div className="cm-form-row" style={{ alignItems: 'flex-end' }}>
+            <div className="cm-form-group" style={{ flex: 1 }}>
               <label className="cm-label">Titolo *</label>
               <input className="cm-input" value={form.title}
-                onChange={e => setF('title', e.target.value)}
+                onChange={e => { setF('title', e.target.value); setBookResults([]); }}
                 placeholder="Titolo del libro"
-                onKeyDown={e => e.key === 'Enter' && addBook()} />
+                onKeyDown={e => e.key === 'Enter' && lookupBook()} />
             </div>
+            <button
+              className="cm-btn"
+              style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+              onClick={lookupBook}
+              disabled={bookSearching || !form.title.trim()}
+              type="button"
+            >
+              {bookSearching ? '…' : '🔍 Cerca online'}
+            </button>
+          </div>
+
+          {/* Risultati Google Books */}
+          {bookResults.length > 0 && (
+            <div style={{
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: 8, overflow: 'hidden', marginBottom: 12,
+            }}>
+              {bookResults[0]?._empty ? (
+                <div style={{ padding: '12px 14px', fontSize: 12, color: 'var(--text2)' }}>
+                  Nessun libro trovato. Compila i campi manualmente.
+                  <button className="cm-btn cm-btn-ghost" style={{ marginLeft: 10, fontSize: 11 }}
+                    onClick={() => setBookResults([])}>OK</button>
+                </div>
+              ) : bookResults[0]?._error ? (
+                <div style={{ padding: '12px 14px', fontSize: 12, color: 'var(--text2)' }}>
+                  Errore di rete. Compila manualmente oppure riprova.
+                  <button className="cm-btn cm-btn-ghost" style={{ marginLeft: 10, fontSize: 11 }}
+                    onClick={() => setBookResults([])}>OK</button>
+                </div>
+              ) : (
+                <>
+                  <div style={{ padding: '8px 12px', fontSize: 11, color: 'var(--text2)', borderBottom: '1px solid var(--border)' }}>
+                    Seleziona un risultato per compilare automaticamente
+                  </div>
+                  {bookResults.map((b, i) => (
+                    <div key={i}
+                      onClick={() => applyBookResult(b)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                        borderBottom: i < bookResults.length - 1 ? '1px solid var(--border)' : 'none',
+                        cursor: 'pointer', transition: 'background 120ms',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      {b.cover
+                        ? <img src={b.cover} alt={b.title} style={{ width: 32, height: 46, objectFit: 'cover', borderRadius: 3, flexShrink: 0 }} />
+                        : <div style={{ width: 32, height: 46, background: 'var(--border)', borderRadius: 3, flexShrink: 0 }} />
+                      }
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.title}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text2)' }}>
+                          {[b.author, b.year, b.totalPages ? `${b.totalPages} pag.` : null].filter(Boolean).join(' · ')}
+                        </div>
+                        {b.genre && <div style={{ fontSize: 10, color: 'var(--text2)', opacity: 0.7 }}>{b.genre}</div>}
+                      </div>
+                    </div>
+                  ))}
+                  <button className="cm-btn cm-btn-ghost" style={{ width: '100%', borderRadius: 0, borderTop: '1px solid var(--border)' }}
+                    onClick={() => setBookResults([])}>Chiudi</button>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className="cm-form-row">
             <div className="cm-form-group">
               <label className="cm-label">Autore</label>
               <input className="cm-input" value={form.author}

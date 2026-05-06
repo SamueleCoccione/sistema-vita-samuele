@@ -71,6 +71,14 @@ async function loadActivities(accessToken) {
       km:        parseFloat((a.distance / 1000).toFixed(2)),
       duration:  a.moving_time,
       elevation: Math.round(a.total_elevation_gain || 0),
+      avgPace:   a.moving_time && a.distance > 0
+                   ? Math.round(a.moving_time / (a.distance / 1000))
+                   : null,                           // sec/km
+      avgHR:     a.average_heartrate ? Math.round(a.average_heartrate) : null,
+      maxHR:     a.max_heartrate     ? Math.round(a.max_heartrate)     : null,
+      calories:  a.calories          ? Math.round(a.calories)          : null,
+      sufferScore: a.suffer_score    ?? null,
+      kudos:     a.kudos_count       ?? 0,
     }))
     .sort((a, b) => b.date.localeCompare(a.date));
 }
