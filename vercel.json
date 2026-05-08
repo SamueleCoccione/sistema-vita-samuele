@@ -1,7 +1,8 @@
 {
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/strava-proxy/:path*", "destination": "https://www.strava.com/:path*" },
+    { "source": "/api/:path*",          "destination": "/api/:path*" },
+    { "source": "/:path*",              "destination": "/index.html" }
   ]
 }

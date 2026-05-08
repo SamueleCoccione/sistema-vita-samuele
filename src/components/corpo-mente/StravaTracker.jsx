@@ -11,6 +11,11 @@ const CLIENT_SECRET = import.meta.env.VITE_STRAVA_CLIENT_SECRET;
 let lastAutoSync = 0;
 const AUTO_SYNC_COOLDOWN_MS = 30 * 60 * 1000;
 
+/* ── Sentinel: token non valido (risposta HTML invece di JSON) ── */
+class TokenExpiredError extends Error {
+  constructor() { super('Token Strava non valido — risposta non-JSON'); }
+}
+
 /* ── Strava API ── */
 async function exchangeCode(code) {
   const res = await fetch('/strava-proxy/oauth/token', {
@@ -47,9 +52,12 @@ async function loadActivities(accessToken) {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (!res.ok) throw new Error(`Fetch attività fallito (${res.status})`);
+  const ct = res.headers.get('content-type') || '';
+  if (!ct.includes('application/json')) throw new TokenExpiredError();
   const all = await res.json();
+  const RUCK_TYPES = ['Walk', 'Hike', 'Rucking'];
   return all
-    .filter(a => ['Walk', 'Hike'].includes(a.type) || ['Walk', 'Hike'].includes(a.sport_type))
+    .filter(a => RUCK_TYPES.includes(a.type) || RUCK_TYPES.includes(a.sport_type))
     .map(a => ({
       id:          a.id,
       name:        a.name,
@@ -76,7 +84,7 @@ async function loadActivities(accessToken) {
 export default function StravaTracker() {
   const [tokens,     saveTokens]     = useFirebaseState(TOKEN_KEY, null);
   const [,           saveActivities] = useFirebaseState(ACTIVITIES_KEY, []);
-  const [syncStatus, setSyncStatus]  = useState('idle'); // idle | syncing | done | error
+  const [syncStatus, setSyncStatus]  = useState('idle'); // idle | syncing | refreshing | done | error
   const [lastSyncAt, setLastSyncAt]  = useState(null);
   const [error,      setError]       = useState(null);
   const exchanged = useRef(false);
@@ -96,6 +104,15 @@ export default function StravaTracker() {
     return next.access_token;
   };
 
+  /* ── Helper: salva attività e aggiorna stato ── */
+  const finishSync = (list) => {
+    saveActivities(list);
+    const now = Date.now();
+    lastAutoSync = now;
+    setLastSyncAt(now);
+    setSyncStatus('done');
+  };
+
   /* ── Sync manuale/automatica ── */
   const sync = async (currentTokens) => {
     setSyncStatus('syncing');
@@ -103,14 +120,29 @@ export default function StravaTracker() {
     try {
       const token = await validToken(currentTokens);
       const list  = await loadActivities(token);
-      saveActivities(list);
-      const now = Date.now();
-      lastAutoSync = now;
-      setLastSyncAt(now);
-      setSyncStatus('done');
+      finishSync(list);
     } catch (e) {
-      setError(e.message);
-      setSyncStatus('error');
+      if (!(e instanceof TokenExpiredError)) {
+        setError(e.message);
+        setSyncStatus('error');
+        return;
+      }
+      // Token valido secondo il clock ma rifiutato da Strava → forza refresh
+      setSyncStatus('refreshing');
+      try {
+        const data = await doRefresh(currentTokens.refresh_token);
+        const next = {
+          access_token:  data.access_token,
+          refresh_token: data.refresh_token,
+          expires_at:    data.expires_at,
+        };
+        saveTokens(next);
+        const list = await loadActivities(next.access_token);
+        finishSync(list);
+      } catch (e2) {
+        setError('Token scaduto. Disconnetti e riconnetti Strava.');
+        setSyncStatus('error');
+      }
     }
   };
 
@@ -181,10 +213,11 @@ export default function StravaTracker() {
 
   /* ── Connesso ── */
   const syncLabel = {
-    idle:    lastSyncAt ? `Sincronizzato ${new Date(lastSyncAt).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}` : 'Connesso',
-    syncing: 'Sincronizzazione…',
-    done:    `Sincronizzato ${new Date(lastSyncAt).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`,
-    error:   `Errore: ${error}`,
+    idle:       lastSyncAt ? `Sincronizzato ${new Date(lastSyncAt).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}` : 'Connesso',
+    syncing:    'Sincronizzazione…',
+    refreshing: 'Aggiornamento token Strava…',
+    done:       `Sincronizzato ${new Date(lastSyncAt).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`,
+    error:      `Errore: ${error}`,
   }[syncStatus];
 
   return (
@@ -197,7 +230,7 @@ export default function StravaTracker() {
       </span>
       <button
         onClick={() => sync(tokens)}
-        disabled={syncStatus === 'syncing'}
+        disabled={syncStatus === 'syncing' || syncStatus === 'refreshing'}
         style={{
           fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 600,
           background: 'none', border: '1px solid var(--color-line)',
@@ -205,7 +238,7 @@ export default function StravaTracker() {
           color: 'var(--color-ink-muted)',
         }}
       >
-        {syncStatus === 'syncing' ? '…' : '↻ Aggiorna'}
+        {syncStatus === 'syncing' || syncStatus === 'refreshing' ? '…' : '↻ Aggiorna'}
       </button>
       <button
         onClick={() => { removeFirebaseData(TOKEN_KEY); removeFirebaseData(ACTIVITIES_KEY); saveTokens(null); }}
