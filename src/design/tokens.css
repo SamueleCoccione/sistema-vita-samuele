@@ -38,6 +38,7 @@
   --accent-cinema:    #C73E5C;
   --accent-rest:      #6B5DD3;
   --accent-goal:      var(--color-success);
+  --accent-money:     #C4873D;
 
   /* ── Shadow ── */
   --shadow-card:  0 8px 32px rgba(31, 24, 18, 0.08);

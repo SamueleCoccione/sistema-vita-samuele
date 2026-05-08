@@ -7,6 +7,7 @@ const DOMAIN_COLORS = {
   cinema:    'var(--accent-cinema)',
   rest:      'var(--accent-rest)',
   goal:      'var(--accent-goal)',
+  money:     'var(--accent-money)',
 };
 
 export default function DomainEyebrow({ domain, label, icon }) {
