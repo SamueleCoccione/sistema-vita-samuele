@@ -460,43 +460,15 @@
 }
 .ft-pri-dot.on { background: var(--accent); border-color: var(--accent); }
 
-/* ── EXPANDED CARD — SIPARIO ── */
+/* ── EXPANDED CARD ── */
 .ft-expanded {
   border-top: 1px solid var(--border);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Curtain panels — start covering the content, then slide apart */
-.ft-expanded::before,
-.ft-expanded::after {
-  content: '';
-  position: absolute;
-  top: 0; bottom: 0;
-  width: 51%; /* slight overlap at center to avoid gap */
-  background: var(--surface);
-  z-index: 5;
-  pointer-events: none;
-  animation: 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.05s both;
-}
-.ft-expanded::before { left: 0;  animation-name: ft-curtain-l; }
-.ft-expanded::after  { right: 0; animation-name: ft-curtain-r; }
-
-@keyframes ft-curtain-l {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-102%); }
-}
-@keyframes ft-curtain-r {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(102%); }
 }
 
 .ft-exp-body {
   display: flex;
   gap: 24px;
   padding: 20px var(--section-px) 20px;
-  position: relative;
-  z-index: 2;
 }
 .ft-exp-poster {
   width: 88px; height: 124px;
@@ -574,8 +546,6 @@
   gap: 10px;
   padding: 12px var(--section-px);
   border-top: 1px solid var(--border);
-  position: relative;
-  z-index: 2;
   background: var(--bg);
 }
 
