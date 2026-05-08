@@ -1,9 +1,13 @@
-import { useState } from 'react';
-import BentoCard    from '../../../components/primitives/BentoCard';
+import { useState, useMemo } from 'react';
+import { useFirebaseState } from '../../../hooks/useFirebaseState';
+import BentoCard     from '../../../components/primitives/BentoCard';
 import DomainEyebrow from '../../../components/primitives/DomainEyebrow';
-import DetailDrawer from '../../../components/primitives/DetailDrawer';
-import SleepDrawer  from '../drawers/SleepDrawer';
+import MiniStatRow   from '../../../components/primitives/MiniStatRow';
+import DetailDrawer  from '../../../components/primitives/DetailDrawer';
+import SleepDrawer   from '../drawers/SleepDrawer';
 import './modules.css';
+
+const ACCENT = '#6B5DD3';
 
 const MoonIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -11,103 +15,120 @@ const MoonIcon = () => (
   </svg>
 );
 
-const PLACEHOLDER_STATS = [
-  { label: 'Ore / notte', icon: '🕐' },
-  { label: 'HRV medio',   icon: '💓' },
-  { label: 'Profondo',    icon: '🌊' },
-  { label: 'Svegli',      icon: '⚡' },
-];
+function fmtDuration(minutes) {
+  if (!minutes) return '—';
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+function sleepQuality(durationMinutes, deepSleep) {
+  if (durationMinutes >= 420 && (deepSleep || 0) >= 0.20) return { label: 'Ottimo',        color: 'var(--color-success)' };
+  if (durationMinutes >= 360 && (deepSleep || 0) >= 0.15) return { label: 'Buono',         color: 'var(--color-flame)' };
+  return                                                           { label: 'Insufficiente', color: 'var(--color-magenta)' };
+}
 
 /* ── SizeS ── */
-function SizeS() {
+function SizeS({ last }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, height: '100%', justifyContent: 'center' }}>
-      <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, lineHeight: 1, color: 'var(--color-ink-muted)' }}>
-        —
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, height: '100%' }}>
+      <span style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: 1, color: last ? 'var(--color-ink)' : 'var(--color-ink-muted)' }}>
+        {last ? fmtDuration(last.durationMinutes) : '—'}
       </span>
-      <span style={{ fontFamily: 'var(--font-ui)', fontSize: 10, color: 'var(--color-ink-muted)', fontStyle: 'italic' }}>
-        Import Apple Health
+      <span style={{ fontFamily: 'var(--font-ui)', fontSize: 10, color: 'var(--color-ink-muted)' }}>
+        {last ? `${Math.round((last.deepSleep || 0) * 100)}% profondo` : 'nessun dato'}
       </span>
     </div>
   );
 }
 
 /* ── SizeM ── */
-function SizeM({ onOpen }) {
+function SizeM({ last }) {
+  if (!last) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+        <span style={{ fontSize: 28 }}>🌙</span>
+        <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--color-ink-muted)', fontStyle: 'italic', textAlign: 'center' }}>
+          Connetti Sleep as Android
+        </span>
+      </div>
+    );
+  }
+
+  const q = sleepQuality(last.durationMinutes, last.deepSleep);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, height: '100%' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        {PLACEHOLDER_STATS.map(s => (
-          <div key={s.label} style={{
-            padding: '10px 12px',
-            background: 'rgba(107,93,211,0.06)',
-            borderRadius: 8,
-            border: '1px solid rgba(107,93,211,0.12)',
-          }}>
-            <div style={{ fontSize: 16, marginBottom: 4 }}>{s.icon}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--color-ink-muted)' }}>—</div>
-            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-ink-muted)', marginTop: 2 }}>
-              {s.label}
-            </div>
-          </div>
-        ))}
+      <div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 36, lineHeight: 1, color: 'var(--color-ink)' }}>
+            {fmtDuration(last.durationMinutes)}
+          </span>
+          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--color-ink-muted)', marginBottom: 2 }}>
+            ultima notte
+          </span>
+        </div>
+        <span style={{ fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', color: q.color, textTransform: 'uppercase' }}>
+          {q.label}
+        </span>
       </div>
-      <button
-        onClick={e => { e.stopPropagation(); onOpen(); }}
-        style={{
-          fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 600,
-          padding: '8px 14px', borderRadius: 8, border: '1px solid rgba(107,93,211,0.3)',
-          background: 'rgba(107,93,211,0.08)', color: 'var(--color-rest, #6B5DD3)',
-          cursor: 'pointer', textAlign: 'center',
-        }}
-      >
-        Importa Apple Health XML
-      </button>
+
+      <MiniStatRow stats={[
+        { label: 'Profondo', value: `${Math.round((last.deepSleep || 0) * 100)}%` },
+        { label: 'Cicli',    value: last.cycles || '—' },
+        { label: 'Rating',   value: last.rating ? `${last.rating.toFixed(1)}★` : '—' },
+      ]} />
     </div>
   );
 }
 
 /* ── SizeL ── */
-function SizeL({ onOpen }) {
+function SizeL({ last }) {
+  if (!last) return <SizeM last={null} />;
+
+  const q = sleepQuality(last.durationMinutes, last.deepSleep);
+  const noise = (last.noiseLevel || 0) < 20 ? 'Basso' : (last.noiseLevel || 0) <= 40 ? 'Medio' : 'Alto';
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, height: '100%' }}>
-      <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 14, color: 'var(--color-ink-muted)', lineHeight: 1.5, margin: 0 }}>
-        Il tracking del sonno non è ancora attivo. Importa l'export XML da Apple Health per vedere le tue statistiche.
-      </p>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        {PLACEHOLDER_STATS.map(s => (
-          <div key={s.label} style={{
-            padding: '10px 12px',
-            background: 'rgba(107,93,211,0.06)',
-            borderRadius: 8,
-            border: '1px solid rgba(107,93,211,0.12)',
-          }}>
-            <div style={{ fontSize: 16, marginBottom: 4 }}>{s.icon}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--color-ink-muted)' }}>—</div>
-            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-ink-muted)', marginTop: 2 }}>
-              {s.label}
-            </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 40, lineHeight: 1, color: 'var(--color-ink)' }}>
+            {fmtDuration(last.durationMinutes)}
+          </span>
+          <div style={{ marginTop: 3 }}>
+            <span style={{ fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', color: q.color, textTransform: 'uppercase' }}>
+              {q.label}
+            </span>
           </div>
-        ))}
+        </div>
+        <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--color-ink-muted)' }}>
+          {new Date(last.toTime).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' })}
+        </span>
       </div>
-      <button
-        onClick={e => { e.stopPropagation(); onOpen(); }}
-        style={{
-          fontFamily: 'var(--font-ui)', fontSize: 12, fontWeight: 600,
-          padding: '10px 16px', borderRadius: 8, border: '1px solid rgba(107,93,211,0.3)',
-          background: 'rgba(107,93,211,0.08)', color: 'var(--color-rest, #6B5DD3)',
-          cursor: 'pointer', textAlign: 'center',
-        }}
-      >
-        Importa Apple Health XML
-      </button>
+
+      <MiniStatRow stats={[
+        { label: 'Profondo', value: `${Math.round((last.deepSleep || 0) * 100)}%` },
+        { label: 'Cicli',    value: last.cycles || '—' },
+        { label: 'Rating',   value: last.rating ? `${last.rating.toFixed(1)}★` : '—' },
+        { label: 'Rumore',   value: noise },
+      ]} />
     </div>
   );
 }
 
 /* ── main export ── */
 export default function SleepModule({ size = 'M' }) {
+  const [log]    = useFirebaseState('sv_sonno_log', []);
+  const [config] = useFirebaseState('sv_sonno_config', {});
   const [open, setOpen] = useState(false);
+
+  const last = useMemo(() => {
+    if (!log.length) return null;
+    return [...log].sort((a, b) => (b.toTime || 0) - (a.toTime || 0))[0];
+  }, [log]);
+
+  // connesso se ha un user_token statico oppure dati già importati
+  const hasData = !!(config?.user_token) || log.length > 0;
 
   const eyebrow = (
     <DomainEyebrow
@@ -117,18 +138,39 @@ export default function SleepModule({ size = 'M' }) {
     />
   );
 
+  const action = (
+    <button className="mod-open-btn" onClick={e => { e.stopPropagation(); setOpen(true); }}>
+      Storico
+    </button>
+  );
+
+  const headerStats = last
+    ? [
+        { label: 'Durata',   value: fmtDuration(last.durationMinutes) },
+        { label: 'Profondo', value: `${Math.round((last.deepSleep || 0) * 100)}`, unit: '%' },
+        { label: 'Rating',   value: last.rating ? last.rating.toFixed(1) : '—', unit: last.rating ? '★' : '' },
+        { label: 'Cicli',    value: last.cycles || '—' },
+      ]
+    : [
+        { label: 'Durata',   value: '—' },
+        { label: 'Profondo', value: '—' },
+        { label: 'Rating',   value: '—' },
+        { label: 'Cicli',    value: '—' },
+      ];
+
   return (
     <>
       <BentoCard
         eyebrow={eyebrow}
+        action={size !== 'S' ? action : undefined}
         className="mod-card"
         compact={size === 'S'}
         onClick={() => setOpen(true)}
       >
         <div className="mod-body">
-          {size === 'S' && <SizeS />}
-          {size === 'M' && <SizeM onOpen={() => setOpen(true)} />}
-          {size === 'L' && <SizeL onOpen={() => setOpen(true)} />}
+          {size === 'S' && <SizeS last={last} />}
+          {size === 'M' && <SizeM last={hasData ? last : null} />}
+          {size === 'L' && <SizeL last={hasData ? last : null} />}
         </div>
       </BentoCard>
 
@@ -137,12 +179,8 @@ export default function SleepModule({ size = 'M' }) {
         onClose={() => setOpen(false)}
         eyebrow="Corpo & Mente"
         title="Sonno"
-        headerStats={[
-          { label: 'Ore / notte', value: '—' },
-          { label: 'HRV medio',   value: '—' },
-          { label: 'Profondo',    value: '—' },
-        ]}
-        accentColor="#6B5DD3"
+        headerStats={headerStats}
+        accentColor={ACCENT}
       >
         <SleepDrawer />
       </DetailDrawer>

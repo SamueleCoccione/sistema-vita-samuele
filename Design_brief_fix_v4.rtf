@@ -1,0 +1,314 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # HERO V5 \'97 Stato Obiettivo + Insight Settimanali ricchi\
+\
+## CONTESTO\
+Le due card hero in cima alla tab "Corpo & Mente" sono visivamente piatte: troppo spazio vuoto a sinistra, troppa uniformit\'e0 a destra, niente narrativa che colleghi le due. Sono il primo elemento che vede l'utente ogni mattina e devono essere all'altezza del resto del sistema.\
+\
+## OBIETTIVO\
+Trasformare le due hero card in **un sistema editoriale a due voci**:\
+- **Sinistra (Stato Obiettivo)**: poetica, soggettiva, sintetica. Risponde alla domanda "come stai?".\
+- **Destra (Insight Settimanali)**: fattuale, oggettivo, strutturato. Risponde alla domanda "cosa \'e8 successo?".\
+\
+Le due card sono asimmetriche per ruolo, complementari per contenuto, coerenti per stile.\
+\
+## VINCOLI ASSOLUTI\
+- Non toccare bento grid, drag&drop, drawer, widget moduli.\
+- Non toccare data layer Firebase (le entries di stato_obiettivo, journal, ecc. restano com'\'e8).\
+- Riusa primitive esistenti: `BentoCard`, `Sparkline`, `MiniStatRow`, `TrendPill`, `DomainEyebrow`, `ChipTag`.\
+- Nessuna libreria nuova.\
+- Le hero NON sono parte del sistema drag&drop. Sono fisse in cima, sempre visibili, sempre nello stesso ordine.\
+\
+## LAYOUT GENERALE\
+\
+```\
+\uc0\u9484 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9516 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9488 \
+\uc0\u9474                                   \u9474                                     \u9474 \
+\uc0\u9474    STATO OBIETTIVO (col-span-7)   \u9474    INSIGHT SETTIMANA (col-span-5)   \u9474 \
+\uc0\u9474    Hero editoriale                \u9474    Hero strutturato                 \u9474 \
+\uc0\u9474                                   \u9474                                     \u9474 \
+\uc0\u9492 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9524 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9472 \u9496 \
+```\
+\
+- Desktop: 12 col, sinistra `col-span-7`, destra `col-span-5`, gap 24px.\
+- Mobile: stack verticale, sinistra prima destra dopo, gap 12px.\
+- Padding interno: 32px desktop, 20px mobile.\
+- Radius: 32px (pi\'f9 grande del bento sotto, per gerarchia).\
+- Background card: `--color-surface` con grain 0.18 opacity.\
+- Shadow: `0 16px 56px rgba(31, 24, 18, 0.16)` (pi\'f9 forte del bento).\
+\
+---\
+\
+## CARD SINISTRA \'97 "STATO OBIETTIVO" (editoriale)\
+\
+### Anatomia (top \uc0\u8594  bottom)\
+\
+**1. Header riga (alto):**\
+- Eyebrow `\uc0\u9679  CORPO & MENTE` con dot teal \'97 domain eyebrow standard.\
+- Bottone azione in alto a destra: testo "Valuta oggi" (se non esiste entry di oggi) oppure "Aggiorna" (se esiste). Stile ghost teal, font 13px peso 600.\
+\
+**2. Numero protagonista + trend (zona hero, ~40% altezza card):**\
+Layout flex orizzontale a due colonne sbilanciate:\
+- **Sinistra (45%):** il numero `6` gigante in Instrument Serif 180px (clamp(120px, 14vw, 180px)) accent-flame. Sotto attaccato `/10` 32px peso 500 muted.\
+- **Destra (55%):** sparkline area degli ultimi 8 score settimanali, altezza 80px, accent-flame con gradient area opacity 0.3 \uc0\u8594  0.05. Sopra la sparkline, riga compatta:\
+  - "8 settimane" label muted 10px uppercase\
+  - TrendPill mini con direction calcolata: se ultimi 3 score in media > 3 score precedenti \uc0\u8594  "\u8593  in salita" tone positive; viceversa "\u8595  in discesa" tone negative; flat altrimenti.\
+  Sotto la sparkline, mini-stat orizzontale: "Media 30g: 5.8 \'b7 Picco: 8 \'b7 Minimo: 3".\
+- ChipTag sotto/accanto al numero: "Nella norma" / "Cresce" / "In difficolt\'e0" / "In forma" con tone correlato e dot del colore-firma. Logica:\
+  - score \uc0\u8805  8: tone success "In forma"\
+  - 6-7: tone neutral "Nella norma"\
+  - 4-5: tone warning "Cresce" (concept: "stai costruendo")\
+  - 1-3: tone negative "In difficolt\'e0"\
+\
+**3. Riflessione completa (zona narrativa, ~50% altezza card):**\
+- Header riga: data dell'ultima riflessione "29 apr 2026" + pillole emozioni (vedi sotto). Allineate orizzontalmente.\
+- Testo riflessione: `Instrument Serif italic 17px peso 400 line-height 1.55 color ink`. Mostra **i primi 320 caratteri** (non pi\'f9 2 righe troncate). Se il testo \'e8 pi\'f9 lungo, fade-out gradient negli ultimi 24px + bottone testuale "Continua a leggere \uc0\u8595 " che espande inline (no modal).\
+- Indentazione: 24px a sinistra con border-left 2px accent-flame opacity 0.3, per dare aria editoriale tipo blockquote raffinato.\
+\
+**4. Pillole emozioni (sopra il testo riflessione):**\
+Estrazione automatica via Groq SDK (modello veloce): a ogni nuova entry di stato_obiettivo, fai una chiamata async che estrae 2-4 emozioni dominanti dal testo. Output JSON forzato:\
+```json\
+\{"emotions": ["determinazione", "ansia", "speranza"]\}\
+```\
+Salva il risultato nel doc Firebase della entry come campo `emotions: string[]`. Non ricalcolare se gi\'e0 presente.\
+\
+**Fallback:** se la chiamata Groq fallisce o l'utente \'e8 offline, usa keyword-matching semplice client-side su una lista di 30 emozioni italiane mappate a synonym (es. "paura" \uc0\u8594  ["paura", "ansia", "timore"]; "gioia" \u8594  ["gioia", "felicit\'e0", "entusiasmo"]; ecc.). Codice puro, niente LLM.\
+\
+**Visualizzazione pillole:**\
+- Posizione: stessa riga della data, gap 8px tra pillole.\
+- ChipTag tone neutral con micro-dot del colore mappato all'emozione:\
+  - Emozioni positive (gioia, speranza, gratitudine, determinazione, calma, fierezza): dot success.\
+  - Emozioni negative (paura, rabbia, tristezza, frustrazione, ansia, vergogna): dot magenta.\
+  - Emozioni neutre/miste (curiosit\'e0, sorpresa, malinconia, nostalgia): dot ink-muted.\
+- Font 11px uppercase letter-spacing 0.06em.\
+- Hover su pillola: tooltip con la frase del testo che ha scatenato quella emozione (estratta dalla chiamata Groq, salvata come `emotion_evidence: Record<emotion, string>`).\
+\
+**5. Footer (in fondo card, opzionale ma raccomandato):**\
+- Una riga sottile "Ultima valutazione 36 ore fa" oppure "Hai valutato oggi" \'97 feedback temporale per spingere alla valutazione quotidiana.\
+- Se sono passate >48h dall'ultima entry: la riga diventa accent-flame con CTA "Manca la valutazione di ieri \uc0\u8594 ".\
+\
+---\
+\
+## CARD DESTRA \'97 "INSIGHT SETTIMANA" (strutturata per dominio)\
+\
+### Anatomia (top \uc0\u8594  bottom)\
+\
+**1. Header:**\
+- Eyebrow `INSIGHT \'b7 SETTIMANA 18` (numero settimana ISO calcolato).\
+- A destra: bottone ghost piccolo "Periodo" con dropdown (Settimana / Mese / Trimestre). Default settimana. La selezione cambia tutti i numeri sotto.\
+\
+**2. 3 gruppi di insight raggruppati per dominio:**\
+\
+Ogni gruppo \'e8 una mini-sezione con:\
+- Sottotitolo gruppo: `\uc0\u9679  MOVIMENTO` con dot accent del dominio, font 11px uppercase peso 600 letter-spacing 0.08em.\
+- A destra del sottotitolo, micro-TrendPill del gruppo (calcolata aggregando i micro-trend interni).\
+- Sotto: 2-3 righe di insight compatti.\
+\
+I 3 gruppi:\
+\
+**A) MOVIMENTO** (accent-fitness, teal)\
+Insight inclusi:\
+- Rucking: `4 uscite \'b7 33 km` con TrendPill vs settimana precedente (+/-)\
+- Peso: `78.1 kg \'b7 -0.3 kg` con TrendPill direzione\
+- Foto: `Ultima sessione 8 giorni fa` se >7gg, altrimenti `Sessione recente: 2 giorni fa`\
+\
+**B) MENTE** (accent-mind, magenta)\
+Insight inclusi:\
+- Journal: `6 entries \'b7 prevalente paura` con micro-trend numero entries vs settimana scorsa\
+- Libri: `In lettura: Vagabonding \'b7 64/208 pg` con TrendPill pagine lette settimana\
+- Riflessione: `Ultima valutazione: 6/10` con direzione vs settimana precedente\
+\
+**C) CINEMA** (accent-cinema, rosso desaturato)\
+Insight inclusi:\
+- Film visti: `6 film \'b7 genere top: crime` con TrendPill vs settimana scorsa\
+- Watchlist: `8 da vedere \'b7 +2 questa settimana`\
+- Mood: `Mood prevalente: ispirato` (calcolato dal campo `mood` delle entries film_visti recenti)\
+\
+**Layout di ogni riga insight:**\
+```\
+[icona 16x16 dominio]   [titolo metrica]   [valore]   [TrendPill]\
+                        [sub-info muted 11px se utile]\
+```\
+- Icona piccola monochrome del widget collegato (footprints, scale, image-frame, feather, book, journal, clapperboard, watchlist, mood).\
+- Titolo: 13px peso 500 ink.\
+- Valore: 13px peso 600 mono tabular-nums.\
+- TrendPill: micro-pill 18px h, font 10px, dot direzione (\uc0\u8593  \u8595  \u8594 ).\
+- Sub-info: 11px peso 400 muted, sotto la riga principale, opzionale.\
+- Riga clickabile \uc0\u8594  apre il drawer del widget collegato (riusa drawer esistenti).\
+\
+**Separatore tra gruppi:** linea sottile `1px var(--color-line)` orizzontale, padding-top/bottom 16px.\
+\
+**3. Footer card:**\
+- Riga compatta "Aggiornato 2 minuti fa \'b7 Sincronizza" con icona refresh piccola.\
+- Click sincronizza \uc0\u8594  riesegue il calcolo degli insight (utile dopo aggiunta dati durante la giornata).\
+\
+### Calcolo dei dati insight\
+\
+Crea `src/tabs/CorpoMente/insights/computeWeeklyInsights.ts`:\
+```ts\
+export interface WeeklyInsight \{\
+  domain: 'movement' | 'mind' | 'cinema';\
+  domainTrend: \{ direction: 'up' | 'down' | 'flat'; tone: 'positive' | 'negative' | 'neutral' \};\
+  rows: InsightRow[];\
+\}\
+\
+export interface InsightRow \{\
+  icon: string; // identificatore icona\
+  title: string;\
+  value: string;\
+  trend?: \{ direction: 'up' | 'down' | 'flat'; delta: string; tone: 'positive' | 'negative' | 'neutral' \};\
+  subInfo?: string;\
+  drawerLink?: WidgetId; // per apertura drawer al click\
+\}\
+\
+export function computeWeeklyInsights(period: 'week' | 'month' | 'quarter', data: TabData): WeeklyInsight[] \{\
+  // logica di calcolo basata sul JSON Firebase\
+\}\
+```\
+\
+Usa il periodo selezionato per filtrare gli array (`storico_peso`, `attivita_strava`, `journal`, `libri`, `film_visti`).\
+\
+### Stato AI opzionale (stretch goal, non bloccante)\
+\
+Se vuoi, in fondo alla card destra (sotto il footer "Aggiornato 2 min fa") aggiungi una micro-sezione "**Lettura della settimana**" \'97 1 sola frase generata da Anthropic SDK che interpreta i pattern. Esempio: *"Hai camminato meno questa settimana ma letto di pi\'f9. Sembra una settimana introspettiva."*. \'c8 il pezzo che chiude il cerchio tra fatti e significato. Implementalo solo se le altre parti funzionano. Cache la frase per 6h per non sprecare token.\
+\
+---\
+\
+## TIPOGRAFIA E SPAZIATURE \'97 REGOLE\
+\
+### Card sinistra\
+- Numero protagonista: Instrument Serif 180px clamp, peso 400 (NON bold), accent-flame, line-height 0.85.\
+- Riflessione: Instrument Serif italic 17px, line-height 1.55, color ink (NON muted).\
+- Eyebrow: standard.\
+- Pillole emozioni: Inter 11px uppercase, peso 600, letter-spacing 0.06em.\
+- Mini-stat sparkline: Inter 11px peso 400 muted.\
+\
+### Card destra\
+- Eyebrow card: Inter 11px uppercase peso 700.\
+- Eyebrow gruppo dominio: Inter 11px uppercase peso 600, dot 6px.\
+- Riga insight titolo: Inter 13px peso 500.\
+- Riga insight valore: JetBrains Mono 13px peso 600 con `font-variant-numeric: tabular-nums`.\
+- TrendPill: Inter 10px peso 600.\
+- Sub-info: Inter 11px peso 400 muted.\
+\
+### Spazi card sinistra\
+- Padding 32px.\
+- Gap header \uc0\u8594  numero: 24px.\
+- Gap numero \uc0\u8594  riflessione: 32px.\
+- Gap pillole emozioni \uc0\u8594  testo riflessione: 12px.\
+- Gap testo \uc0\u8594  footer: 24px.\
+\
+### Spazi card destra\
+- Padding 32px.\
+- Gap header \uc0\u8594  primo gruppo: 24px.\
+- Gap tra gruppi: 16px (incluso separatore).\
+- Gap tra righe interne al gruppo: 10px.\
+- Gap ultimo gruppo \uc0\u8594  footer: 20px.\
+\
+---\
+\
+## ANIMAZIONI AL MOUNT\
+\
+- Numero `6`: count-up da 0 al valore, 800ms ease-out-cubic.\
+- Sparkline: stroke-dasharray draw-in 700ms.\
+- Pillole emozioni: fade-in stagger 60ms tra pillole, 400ms totale.\
+- Riflessione: fade-in 500ms.\
+- Card destra insight rows: stagger 80ms tra righe, fade+slide 8px.\
+- Tutto rispetta `prefers-reduced-motion`.\
+\
+---\
+\
+## RESPONSIVE / MOBILE\
+\
+### Card sinistra mobile\
+- Numero scala a `clamp(96px, 22vw, 140px)`.\
+- Sparkline scende sotto al numero invece di accanto.\
+- Riflessione: stesso pattern, mostra primi 220 caratteri invece di 320.\
+- Pillole emozioni: stessa riga della data, wrap se necessario.\
+- Padding 20px.\
+\
+### Card destra mobile\
+- Stessa architettura ma pi\'f9 compatta.\
+- Padding 20px.\
+- Gap tra gruppi 12px.\
+- Riga insight: titolo + valore in una riga, sub-info nasconde su mobile per default (mostrabile via tap espandi).\
+- Periodo dropdown collassa a icona piccola.\
+\
+---\
+\
+## STATI VUOTI\
+\
+### Card sinistra senza nessuna entry stato_obiettivo\
+- Numero "\'97" muted invece di numero, sparkline placeholder skeleton.\
+- ChipTag "Inizia oggi".\
+- Testo riflessione sostituito da CTA editoriale: *"Lo Stato Obiettivo \'e8 una valutazione quotidiana del tuo benessere fisico e mentale. Inizia ora."* + bottone "Prima valutazione" pieno teal.\
+\
+### Card destra senza dati settimana\
+- Header rimane con eyebrow "Settimana 18".\
+- Al posto dei 3 gruppi: una sola riga "Nessun dato questa settimana ancora. I tuoi insight appariranno man mano che registri attivit\'e0."\
+\
+---\
+\
+## ACCESSIBILIT\'c0\
+\
+- Card sinistra: `aria-label` del numero esplicito ("Stato obiettivo: 6 su 10, nella norma").\
+- Sparkline: `role="img"` con `aria-label` descrittivo del trend.\
+- Pillole emozioni: `role="list"` con ogni pillola `role="listitem"`.\
+- Card destra: ogni riga insight `role="button"` con `aria-label` completo, focusable con tab.\
+- Tooltip emozioni: accessibili anche da tastiera (focus + key).\
+\
+---\
+\
+## FILE STRUTTURA\
+\
+```\
+src/tabs/CorpoMente/hero/\
+\uc0\u9500 \u9472 \u9472  HeroSection.tsx              # container che renderizza le due card\
+\uc0\u9500 \u9472 \u9472  StatusHero/\
+\uc0\u9474    \u9500 \u9472 \u9472  StatusHero.tsx           # card sinistra\
+\uc0\u9474    \u9500 \u9472 \u9472  StatusHero.module.css\
+\uc0\u9474    \u9500 \u9472 \u9472  EmotionPills.tsx         # pillole emozioni\
+\uc0\u9474    \u9500 \u9472 \u9472  ScoreNumber.tsx          # numero gigante con count-up\
+\uc0\u9474    \u9492 \u9472 \u9472  ReflectionText.tsx       # testo con expand inline\
+\uc0\u9500 \u9472 \u9472  InsightsHero/\
+\uc0\u9474    \u9500 \u9472 \u9472  InsightsHero.tsx         # card destra\
+\uc0\u9474    \u9500 \u9472 \u9472  InsightsHero.module.css\
+\uc0\u9474    \u9500 \u9472 \u9472  InsightGroup.tsx         # un gruppo dominio\
+\uc0\u9474    \u9500 \u9472 \u9472  InsightRow.tsx           # singola riga\
+\uc0\u9474    \u9492 \u9472 \u9472  PeriodSelector.tsx       # dropdown periodo\
+\uc0\u9492 \u9472 \u9472  insights/\
+    \uc0\u9500 \u9472 \u9472  computeWeeklyInsights.ts\
+    \uc0\u9500 \u9472 \u9472  extractEmotions.ts        # Groq SDK + fallback keyword\
+    \uc0\u9492 \u9472 \u9472  narrativeReading.ts       # opzionale, Anthropic SDK\
+```\
+\
+---\
+\
+## ORDINE DI ESECUZIONE\
+\
+1. **Prima la card sinistra completa**: header, numero, sparkline, ChipTag, riflessione + expand inline, footer. Salta le pillole emozioni per ora (placeholder vuoto).\
+2. **Poi la card destra completa**: header, 3 gruppi, righe, calcolo da JSON. Salta il "Lettura della settimana" AI per ora.\
+3. **Mostra screenshot** delle due card finite ma SENZA emozioni AI e SENZA narrativa AI. Aspetta conferma.\
+4. **Aggiungi pillole emozioni** con Groq SDK + fallback keyword. Mostra screenshot. Conferma.\
+5. **(Opzionale)** Aggiungi "Lettura della settimana" AI con Anthropic SDK. Mostra. Conferma.\
+\
+## SE QUALCOSA NON \'c8 CHIARO\
+\
+Fermati e chiedi. Particolarmente:\
+- Se il calcolo dello score giornaliero non c'\'e8 (vedo solo l'array `entries` con score), discutiamo come derivare gli 8 score per la sparkline.\
+- Se le emoji emozioni del journal sono gi\'e0 strutturate come tag, valutiamo se riusarli direttamente invece di Groq SDK.\
+- Se la chiamata Groq SDK richiede una API key e non \'e8 ancora configurata, fermati e chiedimi le credenziali invece di lasciare un TODO.\
+\
+## DELIVERABLE\
+\
+- Sostituire `<HeroSection />` esistente con il nuovo.\
+- Tutti i file nella struttura sopra.\
+- Nessuna regressione su bento, drag&drop, drawer, widget.\
+- Commit atomici: `feat(hero/status)`, `feat(hero/insights)`, `feat(hero/emotions)`, `feat(hero/ai-reading)`.\
+\
+Inizia con la card sinistra. Mostra screenshot quando finita. Aspetta conferma.}
