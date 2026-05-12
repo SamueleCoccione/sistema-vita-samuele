@@ -1,6 +1,7 @@
+import './ProgettoDigitale.css';
 import './CorpoMente.css';
-import PageHero        from '../components/PageHero';
-import ObjectiveStatus from '../components/ObjectiveStatus';
+import GrainMesh    from '../components/primitives/GrainMesh';
+import HeroSection  from '../tabs/MillennialBug/HeroSection';
 import { useFirebaseState } from '../hooks/useFirebaseState';
 
 function triggerDownload(data, filename) {
@@ -10,38 +11,52 @@ function triggerDownload(data, filename) {
   URL.revokeObjectURL(url);
 }
 
+const DownloadIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6.5 1.5v7M3.5 6l3 3 3-3M1.5 11h10"/>
+  </svg>
+);
+
 export default function ProgettoDigitale() {
-  const [objStatus] = useFirebaseState('pd_obj_status', {});
+  const [objStatus]     = useFirebaseState('pd_obj_status',           {});
+  const [pubblicazioni] = useFirebaseState('pd_pubblicazioni',         []);
+  const [bozze]         = useFirebaseState('pd_bozze',                 []);
+  const [calendario]    = useFirebaseState('pd_calendario',             []);
+  const [journalProj]   = useFirebaseState('pd_journal_progetto',      []);
+  const [checks]        = useFirebaseState('pd_check_ciclo',            []);
+  const [apprendim]     = useFirebaseState('pd_apprendimenti_voce',     []);
+  const [radici]        = useFirebaseState('pd_radici_settimanali',     []);
+  const [nordStella]    = useFirebaseState('pd_nord_stella',            {});
+  const [metriche]      = useFirebaseState('pd_metriche_risultato',     []);
 
   const downloadTabData = () => {
     triggerDownload({
       exported_at: new Date().toISOString(),
-      tab: 'Progetto Digitale',
+      tab: 'Millennial Bug',
       sections: {
-        stato_obiettivo: objStatus,
+        stato_obiettivo:     objStatus,
+        nord_stella:         nordStella,
+        pubblicazioni,
+        bozze_e_idee:        bozze,
+        calendario_editoriale: calendario,
+        journal_progetto:    journalProj,
+        check_di_ciclo:      checks,
+        metriche_risultato:  metriche,
+        apprendimenti_voce:  apprendim,
+        radici_settimanali:  radici,
       },
-    }, `progetto-digitale-${new Date().toISOString().split('T')[0]}.json`);
+    }, `millennial-bug-${new Date().toISOString().split('T')[0]}.json`);
   };
 
   return (
-    <div className="cm-page">
-      <PageHero title="Progetto Digitale" />
-
-      <div className="cm-section">
-        <div className="cm-section-head">
-          <span className="cm-section-title">Stato Obiettivo</span>
-        </div>
-        <div className="cm-section-body">
-          <ObjectiveStatus
-            tabKey="pd_obj_status"
-            placeholder="Dove sei col tuo progetto creativo?"
-          />
-        </div>
-      </div>
-
-      <div className="cm-download-bar">
-        <button className="cm-btn cm-btn-ghost" onClick={downloadTabData}>↓ Esporta dati tab</button>
-        <span className="cm-download-hint">JSON completo · per analisi con Claude Advisor</span>
+    <div className="cm-page cm-page--mesh mb-page">
+      <GrainMesh showAccent />
+      <HeroSection />
+      <div className="mb-export-row">
+        <button className="mb-export-btn" onClick={downloadTabData}>
+          <DownloadIcon />
+          Esporta dati tab
+        </button>
       </div>
     </div>
   );

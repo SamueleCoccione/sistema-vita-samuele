@@ -7,7 +7,7 @@ const LINKS = [
   { to: '/money-lavoro',      label: 'Money & Lavoro',    color: '#FF6B35' },
   { to: '/relazioni',         label: 'Relazioni',         color: '#E0428A' },
   { to: '/liberta',           label: 'Libertà',           color: '#9B5CD9' },
-  { to: '/progetto-digitale', label: 'Progetto Digitale', color: '#D4E04A' },
+  { to: '/progetto-digitale', label: 'Millennial Bug',    color: '#5C50CC' },
 ];
 
 const LogoutIcon = () => (
