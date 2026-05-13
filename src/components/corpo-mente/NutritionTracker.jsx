@@ -251,7 +251,6 @@ export default function NutritionTracker() {
   const [profile, setProfile] = useFirebaseState(PROFILE_KEY, DEFAULT_PROFILE);
   const [apiKey,  setApiKey]  = useFirebaseState(APIKEY_KEY, '');
   const [weightData] = useFirebaseState('sv_weight', []);
-  const [measData]   = useFirebaseState('sv_body_measures', []);
   const [keyDraft, setKeyDraft] = useState('');
 
   const [showProfile,  setShowProfile]  = useState(false);
@@ -269,7 +268,7 @@ export default function NutritionTracker() {
   const weight = weightData.length
     ? [...weightData].sort((a, b) => b.date.localeCompare(a.date))[0].weight
     : null;
-  const height = measData.length ? measData[measData.length - 1].height : null;
+  const height = null;
 
   // ── Persist ──
   const saveEntries = setEntries;

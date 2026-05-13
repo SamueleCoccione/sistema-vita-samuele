@@ -15,8 +15,6 @@ function triggerDownload(data, filename) {
 export default function CorpoMente() {
   const [weeklyGoals]      = useFirebaseState('sv_weekly_goals',       []);
   const [weeklyGoalsWeek]  = useFirebaseState('sv_weekly_goals_week',  '');
-  const [bodyMeasures]     = useFirebaseState('sv_body_measures',      []);
-  const [progressiPhotos]  = useFirebaseState('sv_progressi_photos',   []);
   const [weight]           = useFirebaseState('sv_weight',             []);
   const [stravaActivities] = useFirebaseState('sv_strava_activities',  []);
   const [nutritionProfile] = useFirebaseState('sv_nutrition_profile',  {});
@@ -32,9 +30,6 @@ export default function CorpoMente() {
   const downloadTabData = () => {
     const cleanBooks = books.map(({ cover, ...b }) => ({
       ...b, cover: cover ? '[immagine omessa]' : null,
-    }));
-    const cleanPhotos = progressiPhotos.map(({ front, side, ...p }) => ({
-      ...p, hasFront: !!front, hasSide: !!side,
     }));
     const filmFields = f => ({
       titolo:              f.title       || '',
@@ -66,8 +61,6 @@ export default function CorpoMente() {
         stato_obiettivo:         objStatus,
         obiettivi_settimanali:   weeklyGoals,
         settimana_corrente:      weeklyGoalsWeek,
-        misure_corpo:            bodyMeasures,
-        foto_progressi_sessioni: cleanPhotos,
         storico_peso:            weight,
         attivita_strava:         stravaActivities,
         nutrizione_profilo:      nutritionProfile,

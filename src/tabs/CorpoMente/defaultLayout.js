@@ -1,21 +1,19 @@
 export const WIDGET_IDS = [
   'weight', 'rucking', 'nutrition', 'weeklyGoals', 'sleep',
-  'books', 'films', 'journal', 'photoProgress', 'bodyMeasures', 'awareness',
+  'books', 'films', 'journal', 'awareness',
 ];
 
 export const DEFAULT_LAYOUT = {
   items: [
-    { id: 'weight',       size: 'L' },
-    { id: 'rucking',      size: 'S' },
-    { id: 'nutrition',    size: 'S' },
-    { id: 'weeklyGoals',  size: 'S' },
-    { id: 'sleep',        size: 'S' },
-    { id: 'books',        size: 'M' },
-    { id: 'films',        size: 'M' },
-    { id: 'journal',      size: 'M' },
-    { id: 'photoProgress',size: 'M' },
-    { id: 'bodyMeasures', size: 'M' },
-    { id: 'awareness',    size: 'M' },
+    { id: 'weight',      size: 'L' },
+    { id: 'rucking',     size: 'S' },
+    { id: 'nutrition',   size: 'S' },
+    { id: 'weeklyGoals', size: 'S' },
+    { id: 'sleep',       size: 'S' },
+    { id: 'books',       size: 'M' },
+    { id: 'films',       size: 'M' },
+    { id: 'journal',     size: 'M' },
+    { id: 'awareness',   size: 'M' },
   ],
 };
 

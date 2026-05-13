@@ -24,8 +24,6 @@ import SleepModule           from './modules/SleepModule';
 import BooksModule           from './modules/BooksModule';
 import FilmsModule           from './modules/FilmsModule';
 import JournalModule         from './modules/JournalModule';
-import PhotosModule          from './modules/PhotosModule';
-import BodyMeasuresModule    from './modules/BodyMeasuresModule';
 import WeeklyAwarenessModule from './modules/WeeklyAwarenessModule';
 import './BentoGrid.css';
 
@@ -38,8 +36,6 @@ const MODULES = {
   books:         BooksModule,
   films:         FilmsModule,
   journal:       JournalModule,
-  photoProgress: PhotosModule,
-  bodyMeasures:  BodyMeasuresModule,
   awareness:     WeeklyAwarenessModule,
 };
 

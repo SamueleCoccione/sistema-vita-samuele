@@ -6,8 +6,6 @@ import SleepModule           from './modules/SleepModule';
 import BooksModule           from './modules/BooksModule';
 import FilmsModule           from './modules/FilmsModule';
 import JournalModule         from './modules/JournalModule';
-import PhotosModule          from './modules/PhotosModule';
-import BodyMeasuresModule    from './modules/BodyMeasuresModule';
 import WeeklyAwarenessModule from './modules/WeeklyAwarenessModule';
 import './BentoLayout.css';
 
@@ -30,8 +28,6 @@ export default function BentoLayout({ onExport }) {
         <div data-size="M"><BooksModule /></div>
         <div data-size="M"><FilmsModule /></div>
         <div data-size="M"><JournalModule /></div>
-        <div data-size="M"><PhotosModule /></div>
-        <div data-size="M"><BodyMeasuresModule /></div>
         <div data-size="M"><WeeklyAwarenessModule /></div>
       </div>
       <div className="bento-export-row">

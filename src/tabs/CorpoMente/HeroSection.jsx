@@ -368,7 +368,6 @@ function InsightsHero({ onOpenDrawer }) {
   const [journal]    = useFirebaseState('sv_daily_journal',     []);
   const [books]      = useFirebaseState('sv_books_v2',          []);
   const [films]      = useFirebaseState('sv_films_v1',          []);
-  const [photos]     = useFirebaseState('sv_progressi_photos',  []);
   const [objStatus]  = useFirebaseState('sv_obj_status',        { score: null, entries: [] });
 
   const [period, setPeriod]         = useState('week');
@@ -393,12 +392,6 @@ function InsightsHero({ onOpenDrawer }) {
     const latestW  = sortedW.at(-1);
     const prevW    = sortedW.at(-2);
     const wDelta   = latestW && prevW ? +(latestW.weight - prevW.weight).toFixed(1) : null;
-
-    const sortedPh  = [...photos].sort((a, b) => b.date.localeCompare(a.date));
-    const lastPhoto = sortedPh[0];
-    const photoDays = lastPhoto
-      ? Math.floor((Date.now() - new Date(lastPhoto.date + 'T12:00:00').getTime()) / 86400000)
-      : null;
 
     /* ── MENTE ── */
     const journalCur  = journal.filter(e => inRange(e.date, cur));
@@ -443,7 +436,7 @@ function InsightsHero({ onOpenDrawer }) {
     return {
       movement: {
         ruckCount: ruckCur.length, ruckKm, ruckKmDelta,
-        latestW, wDelta, photoDays,
+        latestW, wDelta,
       },
       mind: {
         journalCount: journalCur.length, topTag, jDelta,
@@ -455,7 +448,7 @@ function InsightsHero({ onOpenDrawer }) {
         wlTotal, wlNew, topMood,
       },
     };
-  }, [activities, weight, journal, books, films, photos, objStatus, period, syncKey]);
+  }, [activities, weight, journal, books, films, objStatus, period, syncKey]);
 
   const { movement, mind, cinema } = insights;
 
@@ -481,16 +474,6 @@ function InsightsHero({ onOpenDrawer }) {
         : null,
       subInfo: movement.latestW ? `Ultima: ${fmtDate(movement.latestW.date)}` : null,
       onClick: () => onOpenDrawer('weight'),
-    },
-    {
-      icon: 'camera',
-      title: 'Foto',
-      value: movement.photoDays === null
-        ? 'Nessuna sessione'
-        : movement.photoDays <= 7
-          ? `Sessione recente: ${movement.photoDays} giorni fa`
-          : `Ultima sessione ${movement.photoDays} giorni fa`,
-      trend: null,
     },
   ];
 
