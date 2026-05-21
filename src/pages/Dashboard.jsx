@@ -30,6 +30,11 @@ const RELAZIONI_CHECKS = [
   { k: 'tribu',     label: 'Follow-up con qualcuno della tribù' },
 ];
 
+const PD_CHECKS = [
+  { k: 'prodotto',   label: 'Prodotto qualcosa per Millennial Bug' },
+  { k: 'pubblicato', label: 'Pubblicato qualcosa per Millennial Bug' },
+];
+
 const TOTAL_CHECKS = CORPO_CHECKS.length + MONEY_CHECKS.length + RELAZIONI_CHECKS.length;
 
 /* ── Helpers ────────────────────────────────────────────────────── */
@@ -207,6 +212,7 @@ export default function Dashboard() {
   };
 
   const [allEntries, setAllEntries, allLoaded] = useFirebaseState(KEY, []);
+  const [pdEntries,  setPdEntries]             = useFirebaseState('pd_tracking_giornaliero', []);
   const [td, setTd] = useState(today);
   const [entry, setEntry] = useState({ ...EMPTY });
 
@@ -402,7 +408,7 @@ export default function Dashboard() {
       </Section>
 
       {/* ── SEZIONE 1b — PROGETTO DIGITALE */}
-      <ProgettoDigitaleSection />
+      <ProgettoDigitaleSection pdEntries={pdEntries} setPdEntries={setPdEntries} />
 
       {/* ── SEZIONE 2 — MONEY & LAVORO */}
       <Section
@@ -443,16 +449,16 @@ export default function Dashboard() {
         ))}
       </Section>
 
-      <StatsPanel entries={allWithToday} />
-      <HistoryPanel entries={allWithToday} />
+      <StatsPanel entries={allWithToday} pdEntries={pdEntries} />
+      <HistoryPanel entries={allWithToday} pdEntries={pdEntries} />
 
     </div>
   );
 }
 
 /* ── Progetto Digitale section ──────────────────────────────────── */
-function ProgettoDigitaleSection() {
-  const [entries, setEntries] = useFirebaseState('pd_tracking_giornaliero', []);
+function ProgettoDigitaleSection({ pdEntries, setPdEntries }) {
+  const entries = pdEntries;
   const td = today();
 
   const todayEntry = useMemo(
@@ -463,7 +469,7 @@ function ProgettoDigitaleSection() {
   const togglePd = (key) => {
     const updated = { ...todayEntry, [key]: !todayEntry[key] };
     const exists  = entries.find(e => e.date === td);
-    setEntries(exists
+    setPdEntries(exists
       ? entries.map(e => e.date === td ? updated : e)
       : [...entries, updated],
     );
@@ -521,16 +527,14 @@ function ProgettoDigitaleSection() {
         </div>
       </div>
       <div className="db-checks">
-        <Check
-          label="Prodotto qualcosa per Millennial Bug?"
-          checked={!!todayEntry.prodotto}
-          onClick={() => togglePd('prodotto')}
-        />
-        <Check
-          label="Pubblicato qualcosa per Millennial Bug"
-          checked={!!todayEntry.pubblicato}
-          onClick={() => togglePd('pubblicato')}
-        />
+        {PD_CHECKS.map(c => (
+          <Check
+            key={c.k}
+            label={c.label}
+            checked={!!todayEntry[c.k]}
+            onClick={() => togglePd(c.k)}
+          />
+        ))}
       </div>
       <div className="db-pd-heatmap">
         {heatmap.map(day => (
@@ -546,16 +550,23 @@ function ProgettoDigitaleSection() {
 }
 
 /* ── StatsPanel ─────────────────────────────────────────────────── */
-function StatsPanel({ entries }) {
+function StatsPanel({ entries, pdEntries }) {
   if (entries.length === 0) return null;
   const avg = entries.reduce((s, e) => s + globalScore(e), 0) / entries.length;
   const areaAvg = (checks, section) =>
     Math.round(entries.reduce((s, e) => s + sectionDone(e[section], checks) / checks.length, 0) / entries.length * 100);
   const avgColor = avg >= 8 ? 'green' : avg >= 5 ? 'yellow' : 'red';
+
+  const pdByDate = Object.fromEntries(pdEntries.map(e => [e.date, e]));
+  const pdPct = entries.length
+    ? Math.round(entries.filter(e => pdByDate[e.date]?.prodotto).length / entries.length * 100)
+    : 0;
+
   const areas = [
-    { label: 'Corpo & Mente',   pct: areaAvg(CORPO_CHECKS,     'corpo'),     color: 'var(--chart-blue)'   },
-    { label: 'Money & Lavoro',  pct: areaAvg(MONEY_CHECKS,     'money'),     color: 'var(--score-yellow)' },
-    { label: 'Relazioni',       pct: areaAvg(RELAZIONI_CHECKS, 'relazioni'), color: '#c8a0e0'              },
+    { label: 'Corpo & Mente',      pct: areaAvg(CORPO_CHECKS,     'corpo'),     color: 'var(--chart-blue)'   },
+    { label: 'Money & Lavoro',     pct: areaAvg(MONEY_CHECKS,     'money'),     color: 'var(--score-yellow)' },
+    { label: 'Relazioni',          pct: areaAvg(RELAZIONI_CHECKS, 'relazioni'), color: '#c8a0e0'              },
+    { label: 'Prog. Digitale',     pct: pdPct,                                  color: '#5C50CC'              },
   ];
   return (
     <div className="db-stats-panel">
@@ -584,12 +595,13 @@ function StatsPanel({ entries }) {
 }
 
 /* ── HistoryPanel ────────────────────────────────────────────────── */
-function HistoryPanel({ entries }) {
+function HistoryPanel({ entries, pdEntries }) {
   const months     = groupByMonth(entries);
   const currentMk  = new Date().toISOString().slice(0, 7);
   const td         = new Date().toISOString().split('T')[0];
   const [openMonths, setOpenMonths] = useState(() => new Set([currentMk]));
   const [openDays,   setOpenDays]   = useState(new Set());
+  const pdByDate   = Object.fromEntries(pdEntries.map(e => [e.date, e]));
 
   if (entries.length === 0) return null;
 
@@ -620,10 +632,12 @@ function HistoryPanel({ entries }) {
                     const scoreColor = score >= 8 ? 'green' : score >= 5 ? 'yellow' : 'red';
                     const isToday    = e.date === td;
                     const isDayOpen  = openDays.has(e.date);
+                    const pdEntry   = pdByDate[e.date];
                     const areaFracs  = [
                       { pct: sectionDone(e.corpo,     CORPO_CHECKS)     / CORPO_CHECKS.length,     color: 'var(--chart-blue)'   },
                       { pct: sectionDone(e.money,     MONEY_CHECKS)     / MONEY_CHECKS.length,     color: 'var(--score-yellow)' },
                       { pct: sectionDone(e.relazioni, RELAZIONI_CHECKS) / RELAZIONI_CHECKS.length, color: '#c8a0e0'              },
+                      { pct: pdEntry?.prodotto ? 1 : 0,                                            color: '#5C50CC'              },
                     ];
                     return (
                       <div key={e.date} className={`db-hist-day${isDayOpen ? ' open' : ''}`}>
@@ -668,6 +682,17 @@ function HistoryPanel({ entries }) {
                                 )}
                               </div>
                             ))}
+                            {pdEntry && (
+                              <div className="db-hist-area-block">
+                                <div className="db-hist-area-title" style={{ color: '#5C50CC' }}>Prog. Digitale</div>
+                                {PD_CHECKS.map(c => (
+                                  <div key={c.k} className={`db-hist-chk${pdEntry[c.k] ? ' on' : ''}`}>
+                                    <span className="db-hist-chk-dot" style={pdEntry[c.k] ? { background: '#5C50CC', borderColor: '#5C50CC' } : {}} />
+                                    <span>{c.label}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
