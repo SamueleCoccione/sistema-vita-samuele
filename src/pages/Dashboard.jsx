@@ -17,11 +17,10 @@ const CORPO_CHECKS = [
 ];
 
 const MONEY_CHECKS = [
-  { k: 'outreach',        label: 'Almeno 3 nuovi contatti outreach'           },
-  { k: 'produttivo',      label: 'Almeno 4 ore su lavoro che genera reddito'  },
-  { k: 'followup',        label: 'Follow-up su almeno una proposta aperta'    },
-  { k: 'imparato',        label: 'Ho imparato qualcosa di nuovo sul settore'  },
-  { k: 'no_lavori_bassi', label: 'Ho evitato lavori sotto i 500€'             },
+  { k: 'lavoro30',      label: '30 min di lavoro fatto'          },
+  { k: 'commerciale',   label: '1 azione commerciale'            },
+  { k: 'tracciato',     label: 'Tracciato entrate/uscite oggi'   },
+  { k: 'no_merdoso',    label: 'Non ho ceduto a un lavoro merdoso' },
 ];
 
 const RELAZIONI_CHECKS = [
@@ -155,7 +154,7 @@ function fmtDayLabel(dateStr) {
 const EMPTY = {
   date:      today(),
   corpo:     { sonno7: false, rucking: false, lettura: false, abbuffate: false, ore: '', qualita: '' },
-  money:     { outreach: false, produttivo: false, followup: false, imparato: false, no_lavori_bassi: false },
+  money:     { lavoro30: false, commerciale: false, tracciato: false, no_merdoso: false },
   relazioni: { gesto: false, ascolto: false, familiare: false, tribu: false },
   liberta:   { tempo_me: false, no_scroll: false, progetto: false, aria_aperta: false },
 };
@@ -407,10 +406,9 @@ export default function Dashboard() {
         title="Money & Lavoro"
         done={moneyDone}
         total={MONEY_CHECKS.length}
-        status={sectionStatus(moneyDone, 5, 5, 3)}
+        status={sectionStatus(moneyDone, 4, 4, 3)}
         streak={moneyStreak}
         streakLabel="giorni completi"
-        alert={!entry.money?.outreach ? 'Nessun contatto oggi. I clienti non arrivano da soli.' : null}
       >
         {MONEY_CHECKS.map(c => (
           <Check
