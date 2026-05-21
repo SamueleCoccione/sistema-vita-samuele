@@ -573,6 +573,26 @@
 .db-hist-qual-normale { color: #7a5800; }
 .db-hist-qual-stanco  { color: #b94040; }
 
+/* ── PROGETTO DIGITALE HEATMAP ── */
+.db-pd-heatmap {
+  display: flex;
+  gap: 3px;
+  padding: 10px 18px 14px;
+  border-top: 1px solid var(--border);
+  overflow-x: auto;
+}
+.db-pd-dot {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  background: var(--border);
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+.db-pd-dot.done         { background: rgba(92, 80, 204, 0.45); }
+.db-pd-dot.today        { outline: 1.5px solid rgba(92, 80, 204, 0.55); outline-offset: 1px; }
+.db-pd-dot.done.today   { background: #5C50CC; }
+
 /* ================================================================
    DASHBOARD MOBILE
 ================================================================ */

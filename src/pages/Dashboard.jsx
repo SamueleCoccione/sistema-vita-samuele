@@ -401,6 +401,9 @@ export default function Dashboard() {
         })}
       </Section>
 
+      {/* ── SEZIONE 1b — PROGETTO DIGITALE */}
+      <ProgettoDigitaleSection />
+
       {/* ── SEZIONE 2 — MONEY & LAVORO */}
       <Section
         title="Money & Lavoro"
@@ -443,6 +446,101 @@ export default function Dashboard() {
       <StatsPanel entries={allWithToday} />
       <HistoryPanel entries={allWithToday} />
 
+    </div>
+  );
+}
+
+/* ── Progetto Digitale section ──────────────────────────────────── */
+function ProgettoDigitaleSection() {
+  const [entries, setEntries] = useFirebaseState('pd_tracking_giornaliero', []);
+  const td = today();
+
+  const todayEntry = useMemo(
+    () => entries.find(e => e.date === td) || { date: td, prodotto: false, pubblicato: false },
+    [entries, td],
+  );
+
+  const togglePd = (key) => {
+    const updated = { ...todayEntry, [key]: !todayEntry[key] };
+    const exists  = entries.find(e => e.date === td);
+    setEntries(exists
+      ? entries.map(e => e.date === td ? updated : e)
+      : [...entries, updated],
+    );
+  };
+
+  const { currentStreak, bestStreak } = useMemo(() => {
+    const byDate = Object.fromEntries(entries.map(e => [e.date, e]));
+    let curr = 0;
+    const d = new Date();
+    for (let i = 0; i < 365; i++) {
+      const k = d.toISOString().split('T')[0];
+      if (byDate[k]?.prodotto) { curr++; d.setDate(d.getDate() - 1); }
+      else if (i === 0)        { d.setDate(d.getDate() - 1); }
+      else break;
+    }
+    const sorted = entries.filter(e => e.prodotto).sort((a, b) => a.date.localeCompare(b.date));
+    let best = curr, run = sorted.length ? 1 : 0;
+    for (let i = 1; i < sorted.length; i++) {
+      const diff = Math.floor((new Date(sorted[i].date) - new Date(sorted[i - 1].date)) / 86400000);
+      if (diff === 1) { run++; if (run > best) best = run; }
+      else run = 1;
+    }
+    return { currentStreak: curr, bestStreak: Math.max(best, curr) };
+  }, [entries]);
+
+  const heatmap = useMemo(() =>
+    Array.from({ length: 30 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (29 - i));
+      const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const entry = entries.find(e => e.date === k);
+      return { date: k, done: !!entry?.prodotto, isToday: k === td };
+    }),
+  [entries, td]);
+
+  const done = (todayEntry.prodotto ? 1 : 0) + (todayEntry.pubblicato ? 1 : 0);
+
+  return (
+    <div className="db-card" style={{ borderTopColor: '#5C50CC' }}>
+      <div className="db-card-head">
+        <span className="db-card-title">Progetto Digitale — Millennial Bug</span>
+        <div className="db-card-meta">
+          {currentStreak > 0 && (
+            <span className="db-sec-streak" style={{ color: '#5C50CC', borderColor: 'rgba(92,80,204,0.3)' }}>
+              🔥 {currentStreak}g · rec: {bestStreak}
+            </span>
+          )}
+          <span className="db-badge" style={{
+            background: done === 2 ? 'rgba(92,80,204,0.08)' : 'transparent',
+            borderColor: done > 0 ? '#5C50CC' : 'var(--border)',
+            color:       done > 0 ? '#5C50CC' : 'var(--text2)',
+          }}>
+            {done}/2
+          </span>
+        </div>
+      </div>
+      <div className="db-checks">
+        <Check
+          label="Prodotto qualcosa per Millennial Bug?"
+          checked={!!todayEntry.prodotto}
+          onClick={() => togglePd('prodotto')}
+        />
+        <Check
+          label="Pubblicato qualcosa per Millennial Bug"
+          checked={!!todayEntry.pubblicato}
+          onClick={() => togglePd('pubblicato')}
+        />
+      </div>
+      <div className="db-pd-heatmap">
+        {heatmap.map(day => (
+          <div
+            key={day.date}
+            className={`db-pd-dot${day.done ? ' done' : ''}${day.isToday ? ' today' : ''}`}
+            title={day.date}
+          />
+        ))}
+      </div>
     </div>
   );
 }
