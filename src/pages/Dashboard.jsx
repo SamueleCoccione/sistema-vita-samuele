@@ -10,14 +10,10 @@ const KEY = 'dash_daily_v2';
 
 /* ── Check definitions ─────────────────────────────────────────── */
 const CORPO_CHECKS = [
-  { k: 'sveglia',   label: 'Sveglia presto'                   },
-  { k: 'sonno7',    label: 'Sonno 7h+'                        },
-  { k: 'colazione', label: 'Colazione'                        },
-  { k: 'lettura',   label: 'Lettura o contenuto costruttivo'  },
-  { k: 'rucking',   label: 'Rucking'                          },
-  { k: 'igiene',    label: 'Igiene personale'                 },
-  { k: 'vestirsi',  label: 'Vestirsi'                         },
-  { k: 'casa',      label: 'Cura della casa'                  },
+  { k: 'sonno7',    label: 'Sonno 7h+'           },
+  { k: 'rucking',   label: 'Rucking'             },
+  { k: 'lettura',   label: 'Lettura ≥ 30 min'    },
+  { k: 'abbuffate', label: 'Niente abbuffate'     },
 ];
 
 const MONEY_CHECKS = [
@@ -158,7 +154,7 @@ function fmtDayLabel(dateStr) {
 
 const EMPTY = {
   date:      today(),
-  corpo:     { sveglia: false, sonno7: false, colazione: false, lettura: false, rucking: false, igiene: false, vestirsi: false, casa: false, ore: '', qualita: '' },
+  corpo:     { sonno7: false, rucking: false, lettura: false, abbuffate: false, ore: '', qualita: '' },
   money:     { outreach: false, produttivo: false, followup: false, imparato: false, no_lavori_bassi: false },
   relazioni: { gesto: false, ascolto: false, familiare: false, tribu: false },
   liberta:   { tempo_me: false, no_scroll: false, progetto: false, aria_aperta: false },
@@ -367,7 +363,7 @@ export default function Dashboard() {
         title="Corpo & Mente"
         done={corpoDone}
         total={CORPO_CHECKS.length}
-        status={sectionStatus(corpoDone, 8, 7, 4)}
+        status={sectionStatus(corpoDone, 4, 4, 3)}
       >
         {CORPO_CHECKS.flatMap(c => {
           const check = (
