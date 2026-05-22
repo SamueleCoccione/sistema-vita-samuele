@@ -13,6 +13,13 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path.replace(/^\/strava-proxy/, ''),
       },
+      // Proxy per SleepCloud — evita CORS in dev (in prod usa api/sleepcloud.js su Vercel)
+      '/api/sleepcloud': {
+        target: 'https://sleep-cloud.appspot.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api\/sleepcloud/, '/fetchRecords'),
+      },
     },
   },
 })

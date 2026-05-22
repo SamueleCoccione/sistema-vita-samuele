@@ -8,7 +8,7 @@ import './drawers.css';
 
 const ACCENT    = '#6B5DD3';
 const REF_MIN   = 420; // 7h in minuti
-const SC_BASE   = 'http://localhost:3001/api/sleepcloud';
+const SC_BASE   = '/api/sleepcloud';
 
 /* ─── helpers display ─── */
 function fmtDuration(minutes) {
