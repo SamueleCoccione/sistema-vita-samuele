@@ -143,6 +143,7 @@ export default function Transazioni() {
     ev.target.value = '';
   };
 
+  // Lista visibile nella tabella (filtrata anche per tipo)
   const filtered = useMemo(() =>
     entries
       .filter(e =>
@@ -155,10 +156,22 @@ export default function Transazioni() {
     [entries, filterMonth, filterCat, filterConto, filterTipo]
   );
 
-  const totEntrate = filtered.filter(e => e.tipo === 'entrata').reduce((s, e) => s + e.importo, 0);
-  const totUscite  = filtered.filter(e => e.tipo === 'uscita').reduce((s, e) => s + e.importo, 0);
-  const delta      = totEntrate - totUscite;
+  // Totali del mese selezionato (ignorano il filtro tipo per mostrare sempre entrambe le voci)
+  const monthEntries = useMemo(() =>
+    entries.filter(e =>
+      e.date.slice(0, 7) === filterMonth &&
+      (filterCat   === 'tutte' || e.categoria === filterCat) &&
+      (filterConto === 'tutti' || e.conto     === filterConto)
+    ),
+    [entries, filterMonth, filterCat, filterConto]
+  );
 
+  const totEntrate = monthEntries.filter(e => e.tipo === 'entrata').reduce((s, e) => s + e.importo, 0);
+  const totUscite  = monthEntries.filter(e => e.tipo === 'uscita').reduce((s, e) => s + e.importo, 0);
+  const delta      = totEntrate - totUscite;
+  const monthGoalPct = Math.min(100, goal.val > 0 ? (totEntrate / goal.val) * 100 : 0);
+
+  // Dati mese corrente per il bento card (sempre aggiornati al mese in corso)
   const cmEntrate = entries.filter(e => e.tipo === 'entrata' && e.date.slice(0, 7) === thisM()).reduce((s, e) => s + e.importo, 0);
   const goalPct   = Math.min(100, goal.val > 0 ? (cmEntrate / goal.val) * 100 : 0);
 
@@ -178,9 +191,9 @@ export default function Transazioni() {
   const cmDelta  = cmEntrate - cmUscite;
 
   const headerStats = [
-    { label: 'Entrate mese', value: eur(cmEntrate) },
-    { label: 'Uscite mese',  value: eur(cmUscite)  },
-    { label: 'Delta',        value: (cmDelta >= 0 ? '+' : '−') + eur(cmDelta) },
+    { label: 'Entrate mese', value: eur(totEntrate) },
+    { label: 'Uscite mese',  value: eur(totUscite)  },
+    { label: 'Delta',        value: (delta >= 0 ? '+' : '−') + eur(Math.abs(delta)) },
     { label: 'Obiettivo',    value: eur(goal.val)  },
   ];
 
@@ -388,19 +401,19 @@ export default function Transazioni() {
             <h3 className="dr-section-title">Obiettivo entrate mensile</h3>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 12 }}>
               <span style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: 1, color: 'var(--color-ink)' }}>
-                {eur(cmEntrate)}
+                {eur(totEntrate)}
               </span>
               <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--color-ink-muted)' }}>
                 su {eur(goal.val)} obiettivo
               </span>
             </div>
             <div className="ml-goal-bar-bg">
-              <div className="ml-goal-bar-fill" style={{ width: `${goalPct}%` }} />
+              <div className="ml-goal-bar-fill" style={{ width: `${monthGoalPct}%` }} />
             </div>
             <div className="ml-goal-note" style={{ marginTop: 8 }}>
-              {goalPct >= 100
+              {monthGoalPct >= 100
                 ? `✓ Obiettivo raggiunto — prossimo: ${eur(Math.round(goal.val * 1.10))}`
-                : `${eur(goal.val - cmEntrate)} al traguardo · ${goalPct.toFixed(0)}%`}
+                : `${eur(goal.val - totEntrate)} al traguardo · ${monthGoalPct.toFixed(0)}%`}
             </div>
           </section>
 
