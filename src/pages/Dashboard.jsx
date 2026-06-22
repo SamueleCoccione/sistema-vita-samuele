@@ -33,7 +33,7 @@ const RELAZIONI_CHECKS = [
 const PD_CHECKS = [
   { k: 'prodotto',   label: 'Prodotto qualcosa per Millennial Bug' },
   { k: 'pubblicato', label: 'Pubblicato qualcosa per Millennial Bug' },
-  { k: 'scrittura',  label: 'Scritto 1 ora per Millennial Bug' },
+  { k: 'scrittura',  label: 'Scrivere un ora al giorno' },
 ];
 
 const TOTAL_CHECKS = CORPO_CHECKS.length + MONEY_CHECKS.length + RELAZIONI_CHECKS.length;
