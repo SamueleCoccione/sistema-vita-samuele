@@ -33,6 +33,7 @@ const RELAZIONI_CHECKS = [
 const PD_CHECKS = [
   { k: 'prodotto',   label: 'Prodotto qualcosa per Millennial Bug' },
   { k: 'pubblicato', label: 'Pubblicato qualcosa per Millennial Bug' },
+  { k: 'scrittura',  label: 'Scritto 1 ora per Millennial Bug' },
 ];
 
 const TOTAL_CHECKS = CORPO_CHECKS.length + MONEY_CHECKS.length + RELAZIONI_CHECKS.length;
@@ -462,7 +463,7 @@ function ProgettoDigitaleSection({ pdEntries, setPdEntries }) {
   const td = today();
 
   const todayEntry = useMemo(
-    () => entries.find(e => e.date === td) || { date: td, prodotto: false, pubblicato: false },
+    () => entries.find(e => e.date === td) || { date: td, prodotto: false, pubblicato: false, scrittura: false },
     [entries, td],
   );
 
@@ -505,7 +506,7 @@ function ProgettoDigitaleSection({ pdEntries, setPdEntries }) {
     }),
   [entries, td]);
 
-  const done = (todayEntry.prodotto ? 1 : 0) + (todayEntry.pubblicato ? 1 : 0);
+  const done = PD_CHECKS.filter(c => !!todayEntry[c.k]).length;
 
   return (
     <div className="db-card" style={{ borderTopColor: '#5C50CC' }}>
@@ -518,11 +519,11 @@ function ProgettoDigitaleSection({ pdEntries, setPdEntries }) {
             </span>
           )}
           <span className="db-badge" style={{
-            background: done === 2 ? 'rgba(92,80,204,0.08)' : 'transparent',
+            background: done === PD_CHECKS.length ? 'rgba(92,80,204,0.08)' : 'transparent',
             borderColor: done > 0 ? '#5C50CC' : 'var(--border)',
             color:       done > 0 ? '#5C50CC' : 'var(--text2)',
           }}>
-            {done}/2
+            {done}/{PD_CHECKS.length}
           </span>
         </div>
       </div>
