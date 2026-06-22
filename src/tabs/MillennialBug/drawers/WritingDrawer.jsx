@@ -61,7 +61,18 @@ function buildHeatmap(sessions) {
 /* ── Heatmap ── */
 const DAY_LABELS = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
 
+function fmtDateLong(dateStr) {
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('it-IT', {
+    weekday: 'long', day: 'numeric', month: 'long',
+  });
+}
+
+function fmtTime(ts) {
+  return new Date(ts).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+}
+
 function Heatmap({ sessions }) {
+  const [selectedDay, setSelectedDay] = useState(null);
   const weeks = useMemo(() => buildHeatmap(sessions), [sessions]);
 
   const thisWeekDone = useMemo(() => {
@@ -92,6 +103,8 @@ function Heatmap({ sessions }) {
     return count;
   }, [sessions]);
 
+  const dayData = selectedDay ? sessions[selectedDay] : null;
+
   return (
     <div>
       <div style={{ overflowX: 'auto', paddingBottom: 4 }}>
@@ -109,20 +122,30 @@ function Heatmap({ sessions }) {
           {/* Celle settimane */}
           {weeks.map((week, wi) => (
             <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {week.map((day, di) => (
-                <div
-                  key={di}
-                  title={day.minutes !== null ? `${day.date} — ${fmtMin(day.minutes)}` : day.date}
-                  style={{
-                    width: 16, height: 16,
-                    borderRadius: 3,
-                    background: cellColor(day.minutes),
-                    outline: day.isToday ? '1.5px solid #2BB3A8' : 'none',
-                    outlineOffset: 1,
-                    flexShrink: 0,
-                  }}
-                />
-              ))}
+              {week.map((day, di) => {
+                const hasData = day.minutes !== null && day.minutes > 0;
+                const isSelected = selectedDay === day.date;
+                return (
+                  <div
+                    key={di}
+                    title={day.minutes !== null ? `${day.date} — ${fmtMin(day.minutes)}` : day.date}
+                    onClick={() => hasData ? setSelectedDay(isSelected ? null : day.date) : null}
+                    style={{
+                      width: 16, height: 16,
+                      borderRadius: 3,
+                      background: cellColor(day.minutes),
+                      outline: isSelected
+                        ? '2px solid #2BB3A8'
+                        : day.isToday ? '1.5px solid #2BB3A8' : 'none',
+                      outlineOffset: isSelected ? 2 : 1,
+                      flexShrink: 0,
+                      cursor: hasData ? 'pointer' : 'default',
+                      transition: 'outline 120ms, transform 120ms',
+                      transform: isSelected ? 'scale(1.25)' : 'scale(1)',
+                    }}
+                  />
+                );
+              })}
             </div>
           ))}
         </div>
@@ -147,6 +170,70 @@ function Heatmap({ sessions }) {
           {streak > 0 && <> · 🔥 {streak} giorni</>}
         </span>
       </div>
+
+      {/* Dettaglio giorno selezionato */}
+      {selectedDay && (
+        <div style={{
+          marginTop: 14,
+          padding: '14px 16px',
+          borderRadius: 12,
+          background: 'rgba(43,179,168,0.07)',
+          border: '1px solid rgba(43,179,168,0.25)',
+        }}>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
+            <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, fontWeight: 700, color: 'var(--color-ink)', textTransform: 'capitalize' }}>
+              {fmtDateLong(selectedDay)}
+            </span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#2BB3A8' }}>
+              {fmtMin(dayData?.totalMin || 0)}
+            </span>
+          </div>
+
+          {/* Sessioni con orari */}
+          {dayData?.sessions?.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: dayData?.notes ? 10 : 0 }}>
+              {dayData.sessions.map((s, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 10,
+                    color: 'var(--color-ink-muted)', whiteSpace: 'nowrap',
+                  }}>
+                    {s.startTime ? `${fmtTime(s.startTime)} → ${fmtTime(s.endTime)}` : `Sessione ${i + 1}`}
+                  </span>
+                  <span style={{
+                    fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700,
+                    color: '#2BB3A8', whiteSpace: 'nowrap',
+                  }}>
+                    {fmtMin(s.durationMin)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Note */}
+          {dayData?.notes ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {dayData.notes.split('\n').filter(n => n.trim()).map((n, i) => (
+                <p key={i} style={{
+                  margin: 0,
+                  fontFamily: 'var(--font-ui)', fontSize: 12,
+                  color: 'var(--color-ink)', lineHeight: 1.55,
+                  paddingLeft: 10,
+                  borderLeft: '2px solid rgba(43,179,168,0.4)',
+                }}>
+                  {n}
+                </p>
+              ))}
+            </div>
+          ) : (
+            <p style={{ margin: 0, fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--color-ink-muted)', fontStyle: 'italic' }}>
+              Nessuna nota per questo giorno.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
