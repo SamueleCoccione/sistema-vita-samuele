@@ -83,6 +83,16 @@
   height: 100%;
 }
 
+/* Writing card — full width (span 2 colonne) */
+.mb-bento-full {
+  grid-column: span 2;
+  min-height: 260px;
+}
+.mb-bento-full .mb-mod-card,
+.mb-bento-full .bento-card {
+  height: 100%;
+}
+
 /* ── Mobile ── */
 @media (max-width: 768px) {
   .mb-bento-grid {

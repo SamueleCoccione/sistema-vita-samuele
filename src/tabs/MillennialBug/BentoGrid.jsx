@@ -4,6 +4,7 @@ import BozzeModule         from './modules/BozzeModule';
 import JournalModule       from './modules/JournalModule';
 import VoceModule          from './modules/VoceModule';
 import CicloModule         from './modules/CicloModule';
+import WritingModule       from './modules/WritingModule';
 import GrainMesh           from '../../components/primitives/GrainMesh';
 import './BentoGrid.css';
 
@@ -33,6 +34,9 @@ export default function BentoGrid({ onExport }) {
           <JournalModule       />
           <VoceModule          />
           <CicloModule         />
+          <div className="mb-bento-full">
+            <WritingModule />
+          </div>
         </div>
       </div>
     </section>
