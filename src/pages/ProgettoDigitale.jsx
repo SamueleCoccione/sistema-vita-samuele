@@ -3,6 +3,7 @@ import './CorpoMente.css';
 import GrainMesh   from '../components/primitives/GrainMesh';
 import HeroSection from '../tabs/MillennialBug/HeroSection';
 import BentoGrid   from '../tabs/MillennialBug/BentoGrid';
+import { EditModeProvider } from '../contexts/EditModeContext';
 import { useFirebaseState } from '../hooks/useFirebaseState';
 
 function triggerDownload(data, filename) {
@@ -44,11 +45,13 @@ export default function ProgettoDigitale() {
   };
 
   return (
-    <div className="cm-page cm-page--mesh mb-page">
-      <GrainMesh showAccent />
-      <HeroSection />
-      <div className="cm-bento-scrim" aria-hidden="true" />
-      <BentoGrid onExport={downloadTabData} />
-    </div>
+    <EditModeProvider>
+      <div className="cm-page cm-page--mesh mb-page">
+        <GrainMesh showAccent />
+        <HeroSection />
+        <div className="cm-bento-scrim" aria-hidden="true" />
+        <BentoGrid onExport={downloadTabData} />
+      </div>
+    </EditModeProvider>
   );
 }

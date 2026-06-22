@@ -5,7 +5,7 @@
   position: relative;
 }
 
-/* ── Topbar (export button) ── */
+/* ── Topbar legacy (usata solo dall'export btn) ── */
 .mb-bento-topbar {
   display: flex;
   align-items: center;
@@ -58,11 +58,6 @@
   margin: 0 auto;
 }
 
-/* All cards equal height */
-.mb-bento-grid > * {
-  min-height: 260px;
-}
-
 /* BentoCard overrides — same rounding/shadow as CorpoMente */
 .mb-bento-grid .bento-card {
   border-radius: var(--radius-md);
@@ -79,19 +74,17 @@
 }
 
 /* Module card fills height */
-.mb-bento-grid .mb-mod-card {
-  height: 100%;
-}
+.mb-bento-grid .mb-mod-card { height: 100%; }
 
-/* Writing card — full width (span 2 colonne) */
-.mb-bento-full {
-  grid-column: span 2;
-  min-height: 260px;
-}
-.mb-bento-full .mb-mod-card,
-.mb-bento-full .bento-card {
-  height: 100%;
-}
+/* ── Sortable widget sizes nel contesto MB (griglia 2 colonne) ── */
+.mb-bento-grid .sortable-widget               { min-height: 260px; }
+.mb-bento-grid .sortable-widget[data-size="S"],
+.mb-bento-grid .sortable-widget[data-size="M"] { grid-column: span 1; grid-row: span 1; }
+.mb-bento-grid .sortable-widget[data-size="L"] { grid-column: span 2; grid-row: span 1; }
+
+/* sw-inner fills the sortable slot */
+.mb-bento-grid .sw-inner  { height: 100%; }
+.mb-bento-grid .sw-content { height: 100%; display: flex; flex-direction: column; }
 
 /* ── Mobile ── */
 @media (max-width: 768px) {
@@ -100,10 +93,6 @@
     gap: 12px;
     padding: 16px 16px 32px;
   }
-  .mb-bento-grid > * {
-    min-height: 220px;
-  }
-  .mb-bento-topbar {
-    padding: 10px 16px;
-  }
+  .mb-bento-grid .sortable-widget { min-height: 220px; }
+  .mb-bento-grid .sortable-widget[data-size="L"] { grid-column: span 1; }
 }
