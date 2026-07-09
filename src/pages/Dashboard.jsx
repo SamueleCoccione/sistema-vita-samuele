@@ -10,10 +10,11 @@ const KEY = 'dash_daily_v2';
 
 /* ── Check definitions ─────────────────────────────────────────── */
 const CORPO_CHECKS = [
-  { k: 'sonno7',    label: 'Sonno 7h+'           },
-  { k: 'rucking',   label: 'Rucking'             },
-  { k: 'lettura',   label: 'Lettura ≥ 30 min'    },
-  { k: 'abbuffate', label: 'Niente abbuffate'     },
+  { k: 'sonno7',      label: 'Sonno 7h+'             },
+  { k: 'allenamento', label: 'Rucking + Allenamento'  },
+  { k: 'lettura',     label: 'Lettura ≥ 30 min'       },
+  { k: 'scritto',     label: 'Scrittura personale'    },
+  { k: 'abbuffate',   label: 'Niente abbuffate'       },
 ];
 
 const MONEY_CHECKS = [
@@ -159,7 +160,7 @@ function fmtDayLabel(dateStr) {
 
 const EMPTY = {
   date:      today(),
-  corpo:     { sonno7: false, rucking: false, lettura: false, abbuffate: false, ore: '', qualita: '' },
+  corpo:     { sonno7: false, allenamento: false, lettura: false, scritto: false, abbuffate: false, ore: '', qualita: '' },
   money:     { lavoro30: false, commerciale: false, tracciato: false, no_merdoso: false },
   relazioni: { gesto: false, ascolto: false, familiare: false, tribu: false },
   liberta:   { tempo_me: false, no_scroll: false, progetto: false, aria_aperta: false },
@@ -258,7 +259,7 @@ export default function Dashboard() {
   const currentStreak = useMemo(() => calcCurrentStreak(allWithToday, 6), [allWithToday]);
   const bestStreak    = useMemo(() => Math.max(calcBestStreak(allWithToday, 6), currentStreak), [allWithToday, currentStreak]);
 
-  const ruckingStreak   = useMemo(() => calcKeyStreak(allWithToday, 'corpo', 'rucking'),           [allWithToday]);
+  const allenamentoStreak = useMemo(() => calcKeyStreak(allWithToday, 'corpo', 'allenamento'), [allWithToday]);
   const gestoStreak     = useMemo(() => calcKeyStreak(allWithToday, 'relazioni', 'gesto'),          [allWithToday]);
   const moneyStreak     = useMemo(() => calcSectionStreak(allWithToday, MONEY_CHECKS, 'money'),     [allWithToday]);
   const relazioniStreak = useMemo(() => calcSectionStreak(allWithToday, RELAZIONI_CHECKS, 'relazioni'), [allWithToday]);
@@ -369,7 +370,7 @@ export default function Dashboard() {
         title="Corpo & Mente"
         done={corpoDone}
         total={CORPO_CHECKS.length}
-        status={sectionStatus(corpoDone, 4, 4, 3)}
+        status={sectionStatus(corpoDone, 5, 5, 4)}
       >
         {CORPO_CHECKS.flatMap(c => {
           const check = (
@@ -378,7 +379,7 @@ export default function Dashboard() {
               label={c.label}
               checked={!!entry.corpo?.[c.k]}
               onClick={() => toggle('corpo', c.k)}
-              badge={c.k === 'rucking' && ruckingStreak > 0 ? `${ruckingStreak}g` : null}
+              badge={c.k === 'allenamento' && allenamentoStreak > 0 ? `${allenamentoStreak}g` : null}
             />
           );
           if (c.k !== 'sonno7') return [check];
